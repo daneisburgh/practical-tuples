@@ -1,0 +1,35 @@
+ion-router-outlet,
+ion-toolbar {
+    margin: 0 auto;
+    padding: 0 16px;
+    min-width: 352px;
+    max-width: 992px;
+}
+
+ion-toolbar {
+    &#toolbar-header {
+        padding-right: 8px;
+    }
+
+    &#toolbar-footer {
+        padding-right: 24px;
+    }
+
+    ion-grid {
+        padding: 0 0 8px 0;
+
+        @media screen and (min-width: 576px) {
+            padding-bottom: 0;
+        }
+
+        ion-col {
+            padding: 0;
+        }
+    }
+
+    ion-img {
+        $img-size: 48px;
+        height: $img-size;
+        width: $img-size;
+    }
+}

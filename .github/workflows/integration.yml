@@ -1,0 +1,137 @@
+name: Integration
+on: [push]
+jobs:
+    install-root:
+        name: Install Root
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: node_modules
+                  key: node-modules-root-${{ hashFiles('package-lock.json') }}
+            - run: npm install
+    install-backend:
+        name: Install Backend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: backend/node_modules
+                  key: node-modules-backend-${{ hashFiles('backend/package-lock.json') }}
+            - run: cd backend && npm install
+    install-frontend:
+        name: Install Frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: frontend/node_modules
+                  key: node-modules-frontend-${{ hashFiles('frontend/package-lock.json') }}
+            - run: cd frontend && npm install
+    format:
+        name: Format
+        needs: install-root
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: node_modules
+                  key: node-modules-root-${{ hashFiles('package-lock.json') }}
+            - run: npm run format
+    lint-backend:
+        name: Lint Backend
+        needs: install-backend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: node_modules
+                  key: node-modules-root-${{ hashFiles('package-lock.json') }}
+            - uses: actions/cache@v2
+              with:
+                  path: backend/node_modules
+                  key: node-modules-backend-${{ hashFiles('backend/package-lock.json') }}
+            - run: cd backend && npm run lint
+    lint-frontend:
+        name: Lint Frontend
+        needs: install-frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: node_modules
+                  key: node-modules-root-${{ hashFiles('package-lock.json') }}
+            - uses: actions/cache@v2
+              with:
+                  path: frontend/node_modules
+                  key: node-modules-frontend-${{ hashFiles('frontend/package-lock.json') }}
+            - run: cd frontend && npm run lint
+    test-backend:
+        name: Test Backend
+        needs: install-backend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: backend/node_modules
+                  key: node-modules-backend-${{ hashFiles('backend/package-lock.json') }}
+            - run: cd backend && npm run test
+    test-frontend:
+        name: Test Frontend
+        needs: install-frontend
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: frontend/node_modules
+                  key: node-modules-frontend-${{ hashFiles('frontend/package-lock.json') }}
+            - run: cd frontend && npm run test
+    release:
+        name: Release
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        needs: [format, lint-backend, lint-frontend, test-backend, test-frontend]
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-node@v2
+              with:
+                  node-version: "16"
+            - uses: actions/cache@v2
+              with:
+                  path: node_modules
+                  key: node-modules-root-${{ hashFiles('package-lock.json') }}
+            - run: npm run release
+              env:
+                  GH_TOKEN: ${{ secrets.GH_TOKEN }}

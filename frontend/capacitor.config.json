@@ -1,0 +1,6 @@
+{
+    "appId": "com.practicaltuples",
+    "appName": "Practical Tuples",
+    "webDir": "www",
+    "bundledWebRuntime": false
+}

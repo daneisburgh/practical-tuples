@@ -1,0 +1,36 @@
+<ion-app>
+    <ion-header>
+        <ion-toolbar id="toolbar-header">
+            <ion-img slot="start" src="svg/flat-color-icons/todo_list.svg"></ion-img>
+            <ion-title>Practical Tuples</ion-title>
+            <ion-button
+                color="dark"
+                fill="clear"
+                slot="end"
+                routerLink="settings"
+                routerDirection="root"
+            >
+                <ion-icon slot="start" name="person"></ion-icon>
+                <ion-label>User1</ion-label>
+            </ion-button>
+        </ion-toolbar>
+    </ion-header>
+    <ion-router-outlet></ion-router-outlet>
+    <ion-footer>
+        <ion-toolbar id="toolbar-footer">
+            <ion-grid>
+                <ion-row class="ion-align-items-center">
+                    <ion-col size="12" size-sm class="ion-text-center ion-text-sm-start">
+                        <ion-button color="dark" fill="clear">
+                            <ion-icon slot="start" name="mail"></ion-icon>
+                            <ion-label>Contact us</ion-label>
+                        </ion-button>
+                    </ion-col>
+                    <ion-col class="ion-text-center ion-text-sm-end">
+                        <ion-text>&copy; Copyright {{ currentYear }} Dane Isburgh</ion-text>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-toolbar>
+    </ion-footer>
+</ion-app>

@@ -1,0 +1,35 @@
+{
+    "name": "practical-tuples",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "prepare": "husky install",
+        "commit": "cz",
+        "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+        "start": "npm-run-all --parallel --race --print-label database backend frontend",
+        "database": "cd backend && docker-compose up",
+        "backend": "npm run --prefix backend start",
+        "frontend": "npm run --prefix frontend start",
+        "format": "prettier --check .",
+        "format:fix": "prettier --write .",
+        "lint": "npm run --prefix backend lint && npm run --prefix frontend lint",
+        "lint:fix": "npm run --prefix backend lint:fix && npm run --prefix frontend lint:fix",
+        "test": "npm run --prefix backend test && npm run --prefix frontend test",
+        "release": "semantic-release"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^16.0.0",
+        "@commitlint/config-conventional": "^16.0.0",
+        "@semantic-release/changelog": "^6.0.1",
+        "@semantic-release/git": "^10.0.1",
+        "commitizen": "^4.2.4",
+        "cross-env": "^7.0.3",
+        "cz-conventional-changelog": "^3.3.0",
+        "husky": "^7.0.4",
+        "lint-staged": "^12.1.2",
+        "npm-run-all": "^4.1.5",
+        "prettier": "2.5.0",
+        "semantic-release": "^18.0.1",
+        "semantic-release-cli": "^5.4.4"
+    }
+}

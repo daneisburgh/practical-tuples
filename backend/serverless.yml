@@ -1,0 +1,28 @@
+service:
+    name: practical-tuples
+
+plugins:
+    - serverless-offline
+
+provider:
+    name: aws
+    runtime: nodejs14.x
+    stage: ${env:NODE_ENV}
+
+functions:
+    http:
+        handler: dist/src/main.handleHttpRequest
+        events:
+            - http:
+                  method: ANY
+                  path: /
+            - http:
+                  method: ANY
+                  path: "{proxy+}"
+    websocket:
+        handler: dist/src/main.handleWebSocketConnection
+        events:
+            - websocket:
+                  route: $connect
+            - websocket:
+                  route: $disconnect
