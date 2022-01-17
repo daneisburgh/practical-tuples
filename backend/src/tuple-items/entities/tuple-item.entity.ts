@@ -1,3 +1,4 @@
+import { Exclude } from "class-transformer";
 import { IsNumber, IsString } from "class-validator";
 import {
     Column,
@@ -12,14 +13,14 @@ import { Tuple } from "../../tuples/entities/tuple.entity";
 
 @Entity()
 export class TupleItem {
+    @PrimaryGeneratedColumn()
+    id: number;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @PrimaryGeneratedColumn()
-    id: number;
 
     @Column({ nullable: false })
     @IsString()
@@ -27,6 +28,7 @@ export class TupleItem {
 
     @Column()
     @IsNumber()
+    @Exclude({ toPlainOnly: true })
     tupleId: number;
 
     @ManyToOne(() => Tuple, (tuple) => tuple.tupleItems, { eager: true })

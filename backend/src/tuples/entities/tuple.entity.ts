@@ -14,26 +14,26 @@ import { TupleItem } from "../../tuple-items/entities/tuple-item.entity";
 import { User } from "../../users/entities/user.entity";
 
 enum TupleType {
-    list = "list",
-    checkbox = "checkbox"
+    list = "List",
+    checkbox = "Checkbox"
 }
 
 @Entity()
 export class Tuple {
+    @PrimaryGeneratedColumn()
+    id: number;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @PrimaryGeneratedColumn()
-    id: number;
-
-    @Column({ nullable: false })
+    @Column({ nullable: false, default: "New Tuple" })
     @IsString()
     name: string;
 
-    @Column({ type: "enum", enum: TupleType, nullable: false })
+    @Column({ type: "enum", enum: TupleType, nullable: false, default: TupleType.list })
     @IsEnum(TupleType)
     type: TupleType;
 

@@ -1,4 +1,3 @@
-import { Exclude } from "class-transformer";
 import { IsString, MaxLength } from "class-validator";
 import {
     Column,
@@ -18,17 +17,16 @@ import { Tuple } from "../../tuples/entities/tuple.entity";
 
 @Entity()
 export class User {
+    @PrimaryGeneratedColumn()
+    id: number;
+
     @CreateDateColumn()
     createdAt: Date;
 
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @PrimaryGeneratedColumn()
-    id: number;
-
     @Column({ length: 32, nullable: true, select: false, unique: true })
-    @Exclude({ toPlainOnly: true })
     @IsString()
     @MaxLength(32)
     connectionId?: string;
@@ -38,7 +36,6 @@ export class User {
         onDelete: "SET NULL"
     })
     @JoinColumn()
-    @Exclude({ toPlainOnly: true })
     connection?: Connection;
 
     @ManyToMany(() => Tuple, (Tuple) => Tuple.users)
@@ -51,5 +48,6 @@ export class User {
     @AfterLoad()
     setVariables() {
         this.isOnline = !!this.connection;
+        delete this.connection;
     }
 }

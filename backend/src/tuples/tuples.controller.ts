@@ -1,7 +1,6 @@
 import { Controller, Post, Body, Patch, Param, Delete, UseGuards, Req } from "@nestjs/common";
 
 import { TuplesService } from "./tuples.service";
-import { CreateTupleDto } from "./dto/create-tuple.dto";
 import { UpdateTupleDto } from "./dto/update-tuple.dto";
 import { TupleCreatorGuard } from "./guards/tuple-creator.guard";
 import { TupleUserGuard } from "./guards/tuple-user.guard";
@@ -14,19 +13,19 @@ export class TuplesController {
 
     @Post()
     @UseGuards(UserGuard, UserConnectionGuard)
-    create(@Body() createTupleDto: CreateTupleDto, @Req() request) {
-        return this.tuplesService.create(createTupleDto, request.user);
+    create(@Req() request) {
+        return this.tuplesService.create(request.user);
     }
 
     @Patch(":id")
     @UseGuards(UserGuard, UserConnectionGuard, TupleUserGuard)
-    update(@Param("id") id: string, @Body() updateTupleDto: UpdateTupleDto, @Req() request) {
+    update(@Param("id") id: string, @Body() updateTupleDto: UpdateTupleDto) {
         return this.tuplesService.update(+id, updateTupleDto);
     }
 
     @Delete(":id")
     @UseGuards(UserGuard, UserConnectionGuard, TupleCreatorGuard)
-    remove(@Param("id") id: string, @Req() request) {
+    remove(@Param("id") id: string) {
         return this.tuplesService.remove(+id);
     }
 }

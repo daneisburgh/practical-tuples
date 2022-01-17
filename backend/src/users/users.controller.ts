@@ -26,7 +26,7 @@ export class UsersController {
 
     @Post()
     @UseGuards(NewConnectionGuard)
-    async create(@Headers() headers) {
+    create(@Headers() headers) {
         return this.usersService.create(headers["connection-id"]);
     }
 }
