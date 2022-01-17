@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { RouterModule } from "@angular/router";
 import { IonicModule } from "@ionic/angular";
 
 import { ErrorPage } from "./error.page";
@@ -11,7 +12,7 @@ describe("ErrorPage", () => {
         waitForAsync(() => {
             TestBed.configureTestingModule({
                 declarations: [ErrorPage],
-                imports: [IonicModule.forRoot()]
+                imports: [IonicModule.forRoot(), RouterModule.forRoot([])]
             }).compileComponents();
 
             fixture = TestBed.createComponent(ErrorPage);

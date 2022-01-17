@@ -15,8 +15,15 @@ export class TuplePage implements OnInit {
 
     constructor(private activatedRoute: ActivatedRoute, private usersService: UsersService) {}
 
+    get user() {
+        return this.usersService.user;
+    }
+
     ngOnInit() {
         const id = toInteger(this.activatedRoute.snapshot.paramMap.get("id"));
-        this.tuple = this.usersService.user.tuples.find((tuple) => tuple.id === id);
+
+        if (this.user) {
+            this.tuple = this.user.tuples.find((tuple) => tuple.id === id);
+        }
     }
 }

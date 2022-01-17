@@ -1,5 +1,5 @@
 <div
-    *ngIf="user.tuples.length === 0"
+    *ngIf="user && user.tuples.length === 0"
     class="page ion-justify-content-center ion-align-items-center"
 >
     Welcome to Practical Tuples!
@@ -13,7 +13,7 @@
         <ion-spinner *ngIf="creatingTuple" name="lines"></ion-spinner>
     </ion-button>
 </div>
-<div *ngIf="user.tuples.length > 0" class="page">
+<div *ngIf="user && user.tuples.length > 0" class="page">
     <ion-grid>
         <ion-row>
             <ion-col *ngFor="let tuple of user.tuples" size="12" size-sm="6" size-md="4">
