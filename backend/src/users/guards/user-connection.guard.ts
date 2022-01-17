@@ -12,10 +12,10 @@ export class UserConnectionGuard implements CanActivate {
 
         const user = await this.usersService.findOne({ connectionId });
 
-        if (!!user) {
-            return true;
-        } else {
+        if (!user) {
             throw new BadRequestException("Invalid connection");
+        } else {
+            return true;
         }
     }
 }

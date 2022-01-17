@@ -11,14 +11,18 @@ export class UserGuard implements CanActivate {
         const request = context.switchToHttp().getRequest();
         const requestId = request.headers["request-id"];
 
+        if (!requestId) {
+            throw new BadRequestException("Invalid request");
+        }
+
         const id = parseInt(AES.decrypt(requestId, process.env.API_KEY).toString(enc.Utf8));
         const user = await this.usersService.findOne({ id });
 
-        if (!!user) {
+        if (!user) {
+            throw new BadRequestException("Invalid user");
+        } else {
             request.user = user;
             return true;
-        } else {
-            throw new BadRequestException("Invalid user");
         }
     }
 }

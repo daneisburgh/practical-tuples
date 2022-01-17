@@ -18,14 +18,12 @@ export class NewConnectionGuard implements CanActivate {
         const connection = await this.connectionService.findOne(connectionId);
         const user = await this.usersService.findOne({ connectionId });
 
-        if (!!connection && !user) {
-            return true;
-        } else if (!connection) {
+        if (!connection) {
             throw new BadRequestException("Connection does not exist");
         } else if (user) {
             throw new BadRequestException("Connection is not available");
         } else {
-            throw new BadRequestException("Something went wrong");
+            return true;
         }
     }
 }
