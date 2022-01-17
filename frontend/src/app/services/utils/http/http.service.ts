@@ -1,14 +1,21 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { cloneDeepWith, isObject, isString } from "lodash";
 import { environment } from "src/environments/environment";
 import { StorageService, StorageKey } from "../storage/storage.service";
 import { WebSocketService } from "../websocket/websocket.service";
 
 const { httpUrl } = environment;
 
-export enum Route {
+export enum RequestRoute {
     users = "/users",
     tuples = "/tuples"
+}
+
+enum RequestType {
+    delete = "DELETE",
+    patch = "PATCH",
+    post = "POST"
 }
 
 @Injectable({
@@ -25,34 +32,40 @@ export class HttpService {
         return this.webSocketService.connectionId;
     }
 
-    async delete(route: Route): Promise<any> {
-        const type = "DELETE";
-        console.log("REQUEST", type, route);
-
-        const headers = await this.getHeaders();
-        const response = await this.httpClient.delete(httpUrl + route, headers).toPromise();
-
-        console.log("RESPONSE", type, route, response);
-        return response;
+    async delete(route: RequestRoute) {
+        return this.request(RequestType.delete, route);
     }
 
-    async patch(route: Route, body: any): Promise<any> {
-        const type = "PATCH";
-        console.log("REQUEST", type, route, body);
-
-        const headers = await this.getHeaders();
-        const response = await this.httpClient.patch(httpUrl + route, body, headers).toPromise();
-
-        console.log("RESPONSE", type, route, response);
-        return response;
+    async patch(route: RequestRoute, body: any) {
+        return this.request(RequestType.patch, route, body);
     }
 
-    async post(route: Route, body: any): Promise<any> {
-        const type = "POST";
-        console.log("REQUEST", type, route, body);
+    async post(route: RequestRoute, body: any) {
+        return this.request(RequestType.post, route, body);
+    }
 
+    async request(type: RequestType, route: RequestRoute, body?: any) {
+        let response;
         const headers = await this.getHeaders();
-        const response = await this.httpClient.post(httpUrl + route, body, headers).toPromise();
+
+        switch (type) {
+            case RequestType.delete:
+                console.log("REQUEST", type, route);
+                response = await this.httpClient.delete(httpUrl + route, headers).toPromise();
+                break;
+
+            case RequestType.patch:
+                console.log("REQUEST", type, route, body);
+                response = await this.httpClient.patch(httpUrl + route, body, headers).toPromise();
+                break;
+
+            case RequestType.post:
+                console.log("REQUEST", type, route, body);
+                response = await this.httpClient.post(httpUrl + route, body, headers).toPromise();
+                break;
+        }
+
+        response = this.mapValuesDeep(response);
 
         console.log("RESPONSE", type, route, response);
         return response;
@@ -62,14 +75,26 @@ export class HttpService {
         const headers: any = {};
         const requestId = await this.storageService.get(StorageKey.requestId);
 
-        if (this.connectionId) {
-            headers["connection-id"] = this.connectionId;
-        }
-
         if (requestId) {
             headers["request-id"] = requestId;
         }
 
+        if (this.connectionId) {
+            headers["connection-id"] = this.connectionId;
+        }
+
         return { headers };
+    }
+
+    private mapValuesDeep(response: any) {
+        return cloneDeepWith(response, (value) => {
+            if (!isObject(value)) {
+                if (isString(value) && !isNaN(Date.parse(value))) {
+                    return new Date(value);
+                } else {
+                    return value;
+                }
+            }
+        });
     }
 }

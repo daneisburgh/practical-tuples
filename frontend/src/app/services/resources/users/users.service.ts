@@ -1,9 +1,12 @@
 import { EventEmitter, Injectable } from "@angular/core";
 
 import { Tuple } from "../tuples/tuples.service";
-import { HttpService, Route } from "../../utils/http/http.service";
+import { HttpService, RequestRoute } from "../../utils/http/http.service";
 import { StorageKey, StorageService } from "../../utils/storage/storage.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
+import { orderBy } from "lodash";
+
+const route = RequestRoute.users;
 
 export type User = {
     createdAt: Date;
@@ -40,19 +43,22 @@ export class UsersService {
 
     private async connect() {
         try {
+            let user;
             const body = { connectionId: this.webSocketService.connectionId };
             const requestId = await this.storageService.get(StorageKey.requestId);
 
             if (!requestId) {
-                this.user = (await this.httpService.post(Route.users, body)) as User;
+                user = await this.httpService.post(route, body);
                 await this.storageService.set(
                     StorageKey.requestId,
-                    this.user?.requestId.toString() as string
+                    user?.requestId.toString() as string
                 );
             } else {
-                this.user = (await this.httpService.patch(Route.users, body)) as User;
-                // this.user.tuples = new Array(50);
+                user = await this.httpService.patch(route, body);
             }
+
+            user.tuples = orderBy(user.tuples, "updatedAt", "asc");
+            this.user = user as User;
         } catch (error: any) {
             console.error(error);
         } finally {

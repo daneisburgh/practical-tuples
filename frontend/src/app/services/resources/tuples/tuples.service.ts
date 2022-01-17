@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 
-import { User } from "../users/users.service";
-import { HttpService, Route } from "../../utils/http/http.service";
+import { User, UsersService } from "../users/users.service";
+import { HttpService, RequestRoute } from "../../utils/http/http.service";
 
-const route = Route.tuples;
-enum TupleType {
-    list = "list",
-    checkbox = "checkbox"
+const route = RequestRoute.tuples;
+
+export enum TupleType {
+    list = "List",
+    checkbox = "Checkbox"
 }
 
 export type Tuple = {
@@ -17,16 +18,25 @@ export type Tuple = {
     type: TupleType;
     creator: User;
     users: User[];
-    tupleItems: any[];
+    tupleItems: TupleItem[];
+};
+
+export type TupleItem = {
+    createdAt: Date;
+    updatedAt: Date;
+    id: number;
+    value: string;
 };
 
 @Injectable({
     providedIn: "root"
 })
 export class TuplesService {
-    constructor(private httpService: HttpService) {}
+    constructor(private httpService: HttpService, private usersService: UsersService) {}
 
-    async createTuple(name: string, type: TupleType) {
-        const tuple = await this.httpService.post(route, { name, type });
+    async create() {
+        const tuple = (await this.httpService.post(route, {})) as Tuple;
+        this.usersService.user.tuples.unshift(tuple);
+        return tuple;
     }
 }
