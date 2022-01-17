@@ -1,21 +1,31 @@
-<ion-app>
+<ion-app *ngIf="loading" class="loading ion-justify-content-center ion-align-items-center">
+    <ion-spinner name="lines"></ion-spinner>
+</ion-app>
+<ion-app *ngIf="!loading">
     <ion-header>
         <ion-toolbar id="toolbar-header">
             <ion-img slot="start" src="svg/flat-color-icons/todo_list.svg"></ion-img>
             <ion-title>Practical Tuples</ion-title>
-            <ion-button
-                color="dark"
-                fill="clear"
-                slot="end"
-                routerLink="settings"
-                routerDirection="root"
-            >
+            <ion-button *ngIf="user" slot="end" color="dark" fill="clear" routerLink="/settings">
                 <ion-icon slot="start" name="person"></ion-icon>
-                <ion-label>User1</ion-label>
+                <ion-label>User{{ user.id }}</ion-label>
             </ion-button>
         </ion-toolbar>
     </ion-header>
-    <ion-router-outlet></ion-router-outlet>
+    <ion-content *ngIf="connected">
+        <ion-router-outlet></ion-router-outlet>
+    </ion-content>
+    <div
+        *ngIf="!connected"
+        id="disconnected"
+        class="page ion-justify-content-center ion-align-items-center ion-text-center"
+    >
+        You are not connected.<br />Please connect to continue.
+        <ion-button class="ion-margin-top" [disabled]="connecting" (click)="connect()">
+            <ion-label *ngIf="!connecting">Connect</ion-label>
+            <ion-spinner *ngIf="connecting" name="lines"></ion-spinner>
+        </ion-button>
+    </div>
     <ion-footer>
         <ion-toolbar id="toolbar-footer">
             <ion-grid>
@@ -23,11 +33,11 @@
                     <ion-col size="12" size-sm class="ion-text-center ion-text-sm-start">
                         <ion-button color="dark" fill="clear">
                             <ion-icon slot="start" name="mail"></ion-icon>
-                            <ion-label>Contact us</ion-label>
+                            <ion-label>Contact Us</ion-label>
                         </ion-button>
                     </ion-col>
                     <ion-col class="ion-text-center ion-text-sm-end">
-                        <ion-text>&copy; Copyright {{ currentYear }} Dane Isburgh</ion-text>
+                        &copy; Copyright {{ currentYear }} Dane Isburgh
                     </ion-col>
                 </ion-row>
             </ion-grid>

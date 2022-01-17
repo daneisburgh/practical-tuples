@@ -1,22 +1,24 @@
-ion-router-outlet,
-ion-toolbar {
-    margin: 0 auto;
-    padding: 0 16px;
-    min-width: 352px;
-    max-width: 992px;
+.loading ion-spinner {
+    $spinner-size: 64px;
+    height: $spinner-size;
+    width: $spinner-size;
 }
 
 ion-toolbar {
     &#toolbar-header {
-        padding-right: 8px;
+        padding: 0 8px 0 16px;
+
+        ion-title {
+            padding-left: 8px;
+        }
     }
 
     &#toolbar-footer {
-        padding-right: 24px;
+        padding: 0 24px 0 8px;
     }
 
     ion-grid {
-        padding: 0 0 8px 0;
+        padding: 0 0 10px 0;
 
         @media screen and (min-width: 576px) {
             padding-bottom: 0;
@@ -28,8 +30,12 @@ ion-toolbar {
     }
 
     ion-img {
-        $img-size: 48px;
+        $img-size: 40px;
         height: $img-size;
         width: $img-size;
     }
+}
+
+#disconnected ion-button {
+    width: 100px;
 }

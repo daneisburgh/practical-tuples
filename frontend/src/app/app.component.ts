@@ -91,8 +91,6 @@ export class AppComponent implements OnInit {
 
         if (this.routeUrl === "/settings") {
             routeTitle = "Settings";
-        } else if (this.routeUrl !== "/") {
-            routeTitle = "Not found";
         }
 
         this.title.setTitle("Practical Tuples" + (routeTitle ? ` | ${routeTitle}` : ""));
