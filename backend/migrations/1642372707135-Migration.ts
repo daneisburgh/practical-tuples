@@ -1,20 +1,20 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1642172530333 implements MigrationInterface {
-    name = "Migration1642172530333";
+export class Migration1642372707135 implements MigrationInterface {
+    name = "Migration1642372707135";
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(
-            `CREATE TABLE "tuple_item" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "value" character varying NOT NULL, "tupleId" integer NOT NULL, CONSTRAINT "PK_21b19f6521784eb4bdc2d533196" PRIMARY KEY ("id"))`
+            `CREATE TABLE "tuple_item" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "value" character varying NOT NULL, "tupleId" integer NOT NULL, CONSTRAINT "PK_21b19f6521784eb4bdc2d533196" PRIMARY KEY ("id"))`
         );
         await queryRunner.query(
-            `CREATE TYPE "public"."tuple_type_enum" AS ENUM('list', 'checkbox')`
+            `CREATE TYPE "public"."tuple_type_enum" AS ENUM('List', 'Checkbox')`
         );
         await queryRunner.query(
-            `CREATE TABLE "tuple" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "type" "public"."tuple_type_enum" NOT NULL, "creatorId" integer, CONSTRAINT "PK_1f31119186fd85ab740ae576bec" PRIMARY KEY ("id"))`
+            `CREATE TABLE "tuple" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "name" character varying NOT NULL DEFAULT 'New tuple', "type" "public"."tuple_type_enum" NOT NULL DEFAULT 'List', "creatorId" integer, CONSTRAINT "PK_1f31119186fd85ab740ae576bec" PRIMARY KEY ("id"))`
         );
         await queryRunner.query(
-            `CREATE TABLE "user" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "id" SERIAL NOT NULL, "connectionId" character varying(32), CONSTRAINT "UQ_d13bdc217de614574be822c24a3" UNIQUE ("connectionId"), CONSTRAINT "REL_d13bdc217de614574be822c24a" UNIQUE ("connectionId"), CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`
+            `CREATE TABLE "user" ("id" SERIAL NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "connectionId" character varying(32), CONSTRAINT "UQ_d13bdc217de614574be822c24a3" UNIQUE ("connectionId"), CONSTRAINT "REL_d13bdc217de614574be822c24a" UNIQUE ("connectionId"), CONSTRAINT "PK_cace4a159ff9f2512dd42373760" PRIMARY KEY ("id"))`
         );
         await queryRunner.query(
             `CREATE TABLE "connection" ("createdAt" TIMESTAMP NOT NULL DEFAULT now(), "id" character varying(32) NOT NULL, CONSTRAINT "PK_be611ce8b8cf439091c82a334b2" PRIMARY KEY ("id"))`
