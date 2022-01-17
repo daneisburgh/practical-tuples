@@ -4,8 +4,6 @@ import { AES } from "crypto-js";
 import { Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 
-const relations = ["connection", "tuples"];
-
 type FindConditions = {
     id?: number;
     connectionId?: string;
@@ -31,7 +29,10 @@ export class UsersService {
     }
 
     findOne(conditions: FindConditions, select?: (keyof User)[]) {
-        return this.usersRepository.findOne(conditions, { relations, select });
+        return this.usersRepository.findOne(conditions, {
+            select,
+            relations: ["connection", "tuples", "tuples.tupleItems"]
+        });
     }
 
     delete(id: number) {

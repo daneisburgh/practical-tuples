@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 
-import { CreateTupleDto } from "./dto/create-tuple.dto";
 import { UpdateTupleDto } from "./dto/update-tuple.dto";
 import { Tuple } from "./entities/tuple.entity";
 import { User } from "../users/entities/user.entity";
@@ -14,18 +13,25 @@ export class TuplesService {
         private tuplesRepository: Repository<Tuple>
     ) {}
 
-    create(createTupleDto: CreateTupleDto, user: User) {
-        const tuple = Object.assign(new Tuple(), createTupleDto);
+    async create(user: User) {
+        const tuple = new Tuple();
         tuple.creator = user;
         tuple.users = [user];
-        return this.tuplesRepository.save(tuple);
+        const { id } = await this.tuplesRepository.save(tuple);
+        return this.findOne(id);
     }
 
-    update(id: number, updateTupleDto: UpdateTupleDto) {
-        return this.tuplesRepository.update(id, updateTupleDto);
+    findOne(id: number) {
+        return this.tuplesRepository.findOneOrFail(id, {
+            relations: ["tupleItems"]
+        });
     }
 
     remove(id: number) {
         return this.tuplesRepository.delete(id);
+    }
+
+    update(id: number, updateTupleDto: UpdateTupleDto) {
+        return this.tuplesRepository.update(id, updateTupleDto);
     }
 }
