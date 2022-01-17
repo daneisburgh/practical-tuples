@@ -1,4 +1,8 @@
 import { Component } from "@angular/core";
+import { Router } from "@angular/router";
+import { TuplesService } from "src/app/services/resources/tuples/tuples.service";
+
+import { UsersService } from "../../services/resources/users/users.service";
 
 @Component({
     selector: "app-home",
@@ -6,5 +10,22 @@ import { Component } from "@angular/core";
     styleUrls: ["home.page.scss"]
 })
 export class HomePage {
-    constructor() {}
+    creatingTuple = false;
+
+    constructor(
+        private router: Router,
+        private tuplesService: TuplesService,
+        private usersService: UsersService
+    ) {}
+
+    get user() {
+        return this.usersService.user;
+    }
+
+    async createTuple() {
+        this.creatingTuple = true;
+        const { id } = await this.tuplesService.create();
+        this.router.navigateByUrl("/tuple/" + id);
+        this.creatingTuple = false;
+    }
 }

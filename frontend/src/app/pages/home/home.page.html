@@ -1,14 +1,45 @@
-<ion-content [fullscreen]="true">
-    <div id="container">
-        <strong>Ready to create an app?</strong>
-        <p>
-            Start with Ionic
-            <a
-                target="_blank"
-                rel="noopener noreferrer"
-                href="https://ionicframework.com/docs/components"
-                >UI Components</a
-            >
-        </p>
-    </div>
-</ion-content>
+<div
+    *ngIf="user.tuples.length === 0"
+    class="page ion-justify-content-center ion-align-items-center"
+>
+    Welcome to Practical Tuples!
+    <ion-button
+        id="first-tuple"
+        class="ion-margin-top"
+        [disabled]="creatingTuple"
+        (click)="createTuple()"
+    >
+        <ion-label *ngIf="!creatingTuple">Create your first Tuple</ion-label>
+        <ion-spinner *ngIf="creatingTuple" name="lines"></ion-spinner>
+    </ion-button>
+</div>
+<div *ngIf="user.tuples.length > 0" class="page">
+    <ion-grid>
+        <ion-row>
+            <ion-col *ngFor="let tuple of user.tuples" size="12" size-sm="6" size-md="4">
+                <ion-card [routerLink]="'/tuple/' + tuple.id">
+                    <ion-card-header>
+                        <ion-card-title>{{ tuple.name }}</ion-card-title>
+                    </ion-card-header>
+                    <ion-card-content>
+                        Type: {{ tuple.type }}<br />
+                        Items: {{ tuple.tupleItems.length }}<br />
+                        Created by: User{{ tuple.creator.id }}<br />
+                        Created on: {{ tuple.createdAt.toLocaleDateString() }}<br />
+                        Last updated by: User{{ tuple.creator.id }}<br />
+                        Last updated on: {{ tuple.createdAt.toLocaleDateString() }}
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button id="add-tuple" [disabled]="creatingTuple" (click)="createTuple()">
+                    <ion-icon *ngIf="!creatingTuple" slot="start" name="add"></ion-icon>
+                    <ion-label *ngIf="!creatingTuple">Add Tuple</ion-label>
+                    <ion-spinner *ngIf="creatingTuple" name="lines"></ion-spinner>
+                </ion-button>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
+</div>
