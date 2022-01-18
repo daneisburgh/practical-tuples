@@ -19,7 +19,10 @@
             <ion-col *ngFor="let tuple of user.tuples" size="12" size-sm="6" size-md="4">
                 <ion-card [routerLink]="'/tuple/' + tuple.id">
                     <ion-card-header>
-                        <ion-card-title>{{ tuple.name }}</ion-card-title>
+                        <ion-card-title>
+                            {{ tuple.name }}
+                            <hr class="ion-no-margin ion-margin-top" />
+                        </ion-card-title>
                     </ion-card-header>
                     <ion-card-content>
                         Type: {{ tuple.type }}<br />
