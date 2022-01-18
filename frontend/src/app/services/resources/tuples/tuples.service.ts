@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 
 import { User, UsersService } from "../users/users.service";
 import { HttpService, RequestRoute } from "../../utils/http/http.service";
+import { TupleItem } from "../tuple-items/tuple-items.service";
 
 const route = RequestRoute.tuples;
 
@@ -21,13 +22,6 @@ export type Tuple = {
     tupleItems: TupleItem[];
 };
 
-export type TupleItem = {
-    createdAt: Date;
-    updatedAt: Date;
-    id: number;
-    value: string;
-};
-
 @Injectable({
     providedIn: "root"
 })
@@ -38,5 +32,11 @@ export class TuplesService {
         const tuple = (await this.httpService.post(route, {})) as Tuple;
         this.usersService.user.tuples.unshift(tuple);
         return tuple;
+    }
+
+    async update(partialTuple: Partial<Tuple>) {
+        const tuple = (await this.httpService.patch(route, partialTuple)) as Tuple;
+        const tupleIndex = this.usersService.user.tuples.findIndex((t) => t.id === tuple.id);
+        this.usersService.user.tuples[tupleIndex] = tuple;
     }
 }

@@ -9,7 +9,8 @@ const { httpUrl } = environment;
 
 export enum RequestRoute {
     users = "/users",
-    tuples = "/tuples"
+    tuples = "/tuples",
+    tupleItems = "/tuple-items"
 }
 
 enum RequestType {
