@@ -1,7 +1,41 @@
-<div class="page">
-    <ion-grid *ngIf="tuple">
+<div *ngIf="tuple" class="page">
+    <ion-grid>
+        <ion-row id="title-row" class="ion-margin-top">
+            <ion-col class="ion-align-items-center">
+                {{ tuple.name }}
+                <ion-button class="title-button" color="dark" fill="clear">
+                    <ion-icon slot="icon-only" name="create"></ion-icon>
+                </ion-button>
+            </ion-col>
+            <ion-col class="ion-text-end">
+                <ion-button class="title-button" color="danger" fill="clear">
+                    <ion-icon slot="icon-only" name="trash"></ion-icon>
+                </ion-button>
+            </ion-col>
+        </ion-row>
+        <hr class="ion-margin-top" />
         <ion-row>
-            <ion-col>{{ tuple.name }}</ion-col>
+            <ion-col>
+                <ion-reorder-group>
+                    <ion-item *ngFor="let tupleItem of tuple.tupleItems">
+                        <ion-label>{{ tupleItem.value }}</ion-label>
+                    </ion-item>
+                </ion-reorder-group>
+            </ion-col>
+        </ion-row>
+        <ion-row>
+            <ion-col>
+                <ion-button
+                    id="add-tuple-item"
+                    class="ion-margin-start"
+                    [disabled]="creatingTupleItem"
+                    (click)="createTupleItem()"
+                >
+                    <ion-icon *ngIf="!creatingTupleItem" slot="start" name="add"></ion-icon>
+                    <ion-label *ngIf="!creatingTupleItem">Add Item</ion-label>
+                    <ion-spinner *ngIf="creatingTupleItem" name="lines"></ion-spinner>
+                </ion-button>
+            </ion-col>
         </ion-row>
     </ion-grid>
 </div>

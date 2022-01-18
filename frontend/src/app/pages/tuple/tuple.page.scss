@@ -1,3 +1,27 @@
 ion-grid {
-    padding: 8px !important;
+    padding: 8px 16px !important;
+}
+
+#add-tuple-item {
+    width: 123px;
+}
+
+#title-row {
+    ion-col {
+        font-size: 20px;
+    }
+
+    ion-col:first-child {
+        display: flex;
+    }
+
+    .title-button {
+        margin: 0;
+        --padding-start: 8px;
+        --padding-end: 8px;
+
+        ion-icon {
+            font-size: 20px;
+        }
+    }
 }
