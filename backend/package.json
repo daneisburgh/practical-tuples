@@ -40,7 +40,7 @@
         "reflect-metadata": "^0.1.13",
         "rimraf": "^3.0.2",
         "rxjs": "^7.5.1",
-        "serverless": "^2.70.0",
+        "serverless": "^2.72.2",
         "typeorm": "^0.2.41"
     },
     "devDependencies": {
