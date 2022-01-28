@@ -1,27 +1,46 @@
 ion-grid {
-    padding: 8px 16px !important;
-}
+    padding: 8px !important;
 
-#add-tuple-item {
-    width: 123px;
-}
-
-#title-row {
-    ion-col {
-        font-size: 20px;
-    }
-
-    ion-col:first-child {
-        display: flex;
-    }
-
-    .title-button {
-        margin: 0;
-        --padding-start: 8px;
-        --padding-end: 8px;
-
-        ion-icon {
+    #title-row {
+        ion-col,
+        ion-col span {
             font-size: 20px;
         }
+
+        ion-col:first-child {
+            display: flex;
+        }
+
+        ion-col span {
+            cursor: pointer;
+        }
+
+        .title-button {
+            margin: 0;
+            --padding-start: 8px;
+            --padding-end: 8px;
+
+            &#title-button-delete ion-spinner {
+                margin-right: -4px;
+            }
+
+            &#title-button-save {
+                margin-left: 8px;
+
+                ion-spinner {
+                    margin-left: -4px;
+                    margin-right: -4px;
+                }
+            }
+
+            ion-icon {
+                font-size: 20px;
+            }
+        }
+    }
+
+    #add-tuple-item {
+        width: 123px;
+        margin: 0;
     }
 }

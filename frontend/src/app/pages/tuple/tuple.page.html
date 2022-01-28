@@ -1,19 +1,65 @@
 <div *ngIf="tuple" class="page">
     <ion-grid>
         <ion-row id="title-row" class="ion-margin-top">
-            <ion-col class="ion-align-items-center">
+            <ion-col *ngIf="!showTupleNameInput" class="ion-align-items-center">
                 {{ tuple.name }}
-                <ion-button class="title-button" color="dark" fill="clear">
+                <ion-button
+                    class="title-button"
+                    color="dark"
+                    fill="clear"
+                    [disabled]="deletingTuple"
+                    (click)="toggleTupleNameInput()"
+                >
                     <ion-icon slot="icon-only" name="create"></ion-icon>
                 </ion-button>
             </ion-col>
+            <ion-col *ngIf="showTupleNameInput" class="ion-align-items-center">
+                <input
+                    maxlength="20"
+                    [disabled]="updatingTupleName"
+                    [value]="tuple.name"
+                    [(ngModel)]="tupleNameInput"
+                />
+                <ion-button
+                    id="title-button-save"
+                    class="title-button"
+                    color="dark"
+                    fill="clear"
+                    [disabled]="tupleNameInput === tuple.name || updatingTupleName"
+                    (click)="updateTupleName()"
+                >
+                    <ion-icon *ngIf="!updatingTupleName" slot="icon-only" name="save"></ion-icon>
+                    <ion-spinner *ngIf="updatingTupleName" name="lines" color="dark"></ion-spinner>
+                </ion-button>
+                <ion-button
+                    class="title-button"
+                    color="dark"
+                    fill="clear"
+                    [disabled]="updatingTupleName"
+                    (click)="showTupleNameInput = false"
+                >
+                    <ion-icon slot="icon-only" name="close"></ion-icon>
+                </ion-button>
+            </ion-col>
             <ion-col class="ion-text-end">
-                <ion-button class="title-button" color="danger" fill="clear">
-                    <ion-icon slot="icon-only" name="trash"></ion-icon>
+                <ion-button
+                    id="title-button-delete"
+                    class="title-button"
+                    color="danger"
+                    fill="clear"
+                    [disabled]="deletingTuple || showTupleNameInput"
+                    (click)="deleteTuple()"
+                >
+                    <ion-icon *ngIf="!deletingTuple" slot="icon-only" name="trash"></ion-icon>
+                    <ion-spinner *ngIf="deletingTuple" name="lines" color="danger"></ion-spinner>
                 </ion-button>
             </ion-col>
         </ion-row>
-        <hr class="ion-margin-top" />
+        <ion-row>
+            <ion-col>
+                <hr />
+            </ion-col>
+        </ion-row>
         <ion-row>
             <ion-col>
                 <ion-reorder-group>
@@ -27,8 +73,7 @@
             <ion-col>
                 <ion-button
                     id="add-tuple-item"
-                    class="ion-margin-start"
-                    [disabled]="creatingTupleItem"
+                    [disabled]="creatingTupleItem || deletingTuple"
                     (click)="createTupleItem()"
                 >
                     <ion-icon *ngIf="!creatingTupleItem" slot="start" name="add"></ion-icon>
@@ -39,3 +84,4 @@
         </ion-row>
     </ion-grid>
 </div>
+<app-footer></app-footer>
