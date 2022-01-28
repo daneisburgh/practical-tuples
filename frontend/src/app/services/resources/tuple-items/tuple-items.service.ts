@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 
-import { HttpService, RequestRoute } from "../../utils/http/http.service";
+import { HttpService } from "../../utils/http/http.service";
 import { Tuple } from "../tuples/tuples.service";
 import { UsersService } from "../users/users.service";
 
-const route = RequestRoute.tupleItems;
+const route = "/tuple-items";
 
 export type TupleItem = {
     createdAt: Date;

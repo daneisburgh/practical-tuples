@@ -1,12 +1,12 @@
 import { EventEmitter, Injectable } from "@angular/core";
 
 import { Tuple } from "../tuples/tuples.service";
-import { HttpService, RequestRoute } from "../../utils/http/http.service";
+import { HttpService } from "../../utils/http/http.service";
 import { StorageKey, StorageService } from "../../utils/storage/storage.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
 import { orderBy } from "lodash";
 
-const route = RequestRoute.users;
+const route = "/users";
 
 export type User = {
     createdAt: Date;

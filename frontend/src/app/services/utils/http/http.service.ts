@@ -7,12 +7,6 @@ import { WebSocketService } from "../websocket/websocket.service";
 
 const { httpUrl } = environment;
 
-export enum RequestRoute {
-    users = "/users",
-    tuples = "/tuples",
-    tupleItems = "/tuple-items"
-}
-
 enum RequestType {
     delete = "DELETE",
     patch = "PATCH",
@@ -33,19 +27,19 @@ export class HttpService {
         return this.webSocketService.connectionId;
     }
 
-    async delete(route: RequestRoute) {
+    async delete(route: string) {
         return this.request(RequestType.delete, route);
     }
 
-    async patch(route: RequestRoute, body: any) {
+    async patch(route: string, body: any) {
         return this.request(RequestType.patch, route, body);
     }
 
-    async post(route: RequestRoute, body: any) {
+    async post(route: string, body: any) {
         return this.request(RequestType.post, route, body);
     }
 
-    async request(type: RequestType, route: RequestRoute, body?: any) {
+    async request(type: RequestType, route: string, body?: any) {
         let response;
         const headers = await this.getHeaders();
 

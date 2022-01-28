@@ -1,10 +1,11 @@
 import { Injectable } from "@angular/core";
+import { remove } from "lodash";
 
 import { User, UsersService } from "../users/users.service";
-import { HttpService, RequestRoute } from "../../utils/http/http.service";
+import { HttpService } from "../../utils/http/http.service";
 import { TupleItem } from "../tuple-items/tuple-items.service";
 
-const route = RequestRoute.tuples;
+const route = "/tuples";
 
 export enum TupleType {
     list = "List",
@@ -34,8 +35,13 @@ export class TuplesService {
         return tuple;
     }
 
-    async update(partialTuple: Partial<Tuple>) {
-        const tuple = (await this.httpService.patch(route, partialTuple)) as Tuple;
+    async delete(id: number) {
+        await this.httpService.delete(`${route}/${id}`);
+        remove(this.usersService.user.tuples, (tuple) => tuple.id === id);
+    }
+
+    async update(id: number, partialTuple: Partial<Tuple>) {
+        const tuple = (await this.httpService.patch(`${route}/${id}`, partialTuple)) as Tuple;
         const tupleIndex = this.usersService.user.tuples.findIndex((t) => t.id === tuple.id);
         this.usersService.user.tuples[tupleIndex] = tuple;
     }
