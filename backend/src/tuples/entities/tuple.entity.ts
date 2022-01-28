@@ -40,7 +40,7 @@ export class Tuple {
     @ManyToOne(() => User, { eager: true })
     creator: User;
 
-    @ManyToMany(() => User, (user) => user.tuples, { eager: true })
+    @ManyToMany(() => User, (user) => user.tuples, { eager: true, onDelete: "CASCADE" })
     users: User[];
 
     @OneToMany(() => TupleItem, (tupleItem) => tupleItem.tuple)

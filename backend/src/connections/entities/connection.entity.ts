@@ -1,5 +1,5 @@
 import { IsString, Length } from "class-validator";
-import { CreateDateColumn, Entity, OneToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { CreateDateColumn, Entity, OneToOne, PrimaryColumn } from "typeorm";
 
 import { User } from "../../users/entities/user.entity";
 
