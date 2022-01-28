@@ -17,15 +17,15 @@ export class TuplesController {
         return this.tuplesService.create(request.user);
     }
 
-    @Patch(":id")
-    @UseGuards(UserGuard, UserConnectionGuard, TupleUserGuard)
-    update(@Param("id") id: string, @Body() updateTupleDto: UpdateTupleDto) {
-        return this.tuplesService.update(+id, updateTupleDto);
-    }
-
     @Delete(":id")
     @UseGuards(UserGuard, UserConnectionGuard, TupleCreatorGuard)
     remove(@Param("id") id: string) {
         return this.tuplesService.remove(+id);
+    }
+
+    @Patch(":id")
+    @UseGuards(UserGuard, UserConnectionGuard, TupleUserGuard)
+    update(@Param("id") id: string, @Body() updateTupleDto: UpdateTupleDto) {
+        return this.tuplesService.update(+id, updateTupleDto);
     }
 }

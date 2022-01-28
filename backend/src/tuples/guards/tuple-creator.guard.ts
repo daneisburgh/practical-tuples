@@ -1,18 +1,25 @@
 import { Injectable, CanActivate, ExecutionContext, BadRequestException } from "@nestjs/common";
 
+import { TuplesService } from "../tuples.service";
+
 @Injectable()
 export class TupleCreatorGuard implements CanActivate {
+    constructor(private tuplesService: TuplesService) {}
+
     async canActivate(context: ExecutionContext): Promise<boolean> {
-        const request = context.switchToHttp().getRequest();
+        const {
+            params: { id },
+            user
+        } = context.switchToHttp().getRequest();
 
-        console.log(request);
+        const tuple = await this.tuplesService.findOne(+id);
 
-        return true;
-
-        // if (!!user) {
-        //     return true;
-        // } else {
-        //     throw new BadRequestException("Invalid connection");
-        // }
+        if (!tuple) {
+            throw new BadRequestException("Invalid tuple");
+        } else if (tuple.creator.id !== user.id) {
+            throw new BadRequestException("Invalid tuple creator");
+        } else {
+            return true;
+        }
     }
 }

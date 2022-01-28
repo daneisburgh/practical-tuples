@@ -27,11 +27,13 @@ export class TuplesService {
         });
     }
 
-    remove(id: number) {
-        return this.tuplesRepository.delete(id);
+    async remove(id: number) {
+        await this.tuplesRepository.delete(id);
+        return;
     }
 
-    update(id: number, updateTupleDto: UpdateTupleDto) {
-        return this.tuplesRepository.update(id, updateTupleDto);
+    async update(id: number, updateTupleDto: UpdateTupleDto) {
+        await this.tuplesRepository.update(id, updateTupleDto);
+        return this.findOne(id);
     }
 }
