@@ -14,8 +14,6 @@ export class AppComponent implements OnInit {
     @ViewChild("closeConfirmLogOutModal") closeConfirmLogOutModal?: ElementRef;
     @ViewChild("navbarToggler") navbarToggler?: ElementRef;
 
-    readonly currentYear = new Date().getFullYear();
-
     connecting = false;
     connected = false;
     connectingErrorMessage = false;

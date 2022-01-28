@@ -1,38 +1,16 @@
-.loading ion-spinner {
+#loading ion-spinner {
     $spinner-size: 64px;
     height: $spinner-size;
     width: $spinner-size;
 }
 
-ion-toolbar {
-    &#toolbar-header {
+ion-header {
+    ion-toolbar {
         padding: 0 8px 0 16px;
 
         ion-title {
             padding-left: 8px;
         }
-    }
-
-    &#toolbar-footer {
-        padding: 0 24px 0 8px;
-    }
-
-    ion-grid {
-        padding: 0 0 10px 0;
-
-        @media screen and (min-width: 576px) {
-            padding-bottom: 0;
-        }
-
-        ion-col {
-            padding: 0;
-        }
-    }
-
-    ion-img {
-        $img-size: 40px;
-        height: $img-size;
-        width: $img-size;
     }
 }
 

@@ -59,14 +59,46 @@ ion-toolbar,
 }
 
 .page {
-    height: 100%;
     width: 100%;
+    padding-left: 0;
     display: flex;
     flex-direction: column;
+
+    @media screen and (min-width: 768px) {
+        padding-left: 8px;
+    }
+
+    &.page-height-100 {
+        height: calc(100% - 73px);
+
+        @media screen and (min-width: 576px) {
+            height: calc(100% - 56px);
+        }
+    }
 
     ion-grid:first-child {
         width: 100%;
         margin: 0;
         padding: 8px 0;
+    }
+}
+
+.toolbar-header-footer {
+    ion-grid {
+        padding: 0 0 10px 0;
+
+        @media screen and (min-width: 576px) {
+            padding-bottom: 0;
+        }
+
+        ion-col {
+            padding: 0;
+        }
+    }
+
+    ion-img {
+        $img-size: 40px;
+        height: $img-size;
+        width: $img-size;
     }
 }
