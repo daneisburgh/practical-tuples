@@ -35,14 +35,14 @@ export class TuplesService {
         return tuple;
     }
 
+    async update(id: number, tuple: Partial<Tuple>) {
+        tuple = (await this.httpService.patch(`${route}/${id}`, tuple)) as Tuple;
+        const tupleIndex = this.usersService.user.tuples.findIndex((t) => t.id === tuple.id);
+        this.usersService.user.tuples[tupleIndex] = tuple as Tuple;
+    }
+
     async delete(id: number) {
         await this.httpService.delete(`${route}/${id}`);
         remove(this.usersService.user.tuples, (tuple) => tuple.id === id);
-    }
-
-    async update(id: number, partialTuple: Partial<Tuple>) {
-        const tuple = (await this.httpService.patch(`${route}/${id}`, partialTuple)) as Tuple;
-        const tupleIndex = this.usersService.user.tuples.findIndex((t) => t.id === tuple.id);
-        this.usersService.user.tuples[tupleIndex] = tuple;
     }
 }

@@ -43,7 +43,7 @@ export class UsersService {
 
     private async connect() {
         try {
-            let user;
+            let user: User;
             const body = { connectionId: this.webSocketService.connectionId };
             const requestId = await this.storageService.get(StorageKey.requestId);
 
@@ -57,7 +57,12 @@ export class UsersService {
                 user = await this.httpService.patch(route, body);
             }
 
-            user.tuples = orderBy(user.tuples, "updatedAt", "asc");
+            user.tuples = orderBy(user.tuples, "updatedAt", "desc");
+
+            for (const tuple of user.tuples) {
+                tuple.tupleItems = orderBy(tuple.tupleItems, "order", "asc");
+            }
+
             this.user = user as User;
         } catch (error: any) {
             console.error(error);
