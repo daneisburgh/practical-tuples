@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { NavigationStart, Router } from "@angular/router";
 
@@ -11,9 +11,6 @@ import { WebSocketService } from "./services/utils/websocket/websocket.service";
     styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
-    @ViewChild("closeConfirmLogOutModal") closeConfirmLogOutModal?: ElementRef;
-    @ViewChild("navbarToggler") navbarToggler?: ElementRef;
-
     connecting = false;
     connected = false;
     connectingErrorMessage = false;
