@@ -1,26 +1,39 @@
 import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+
 import { CreateTupleItemDto } from "./dto/create-tuple-item.dto";
 import { UpdateTupleItemDto } from "./dto/update-tuple-item.dto";
+import { TupleItem } from "./entities/tuple-item.entity";
 
 @Injectable()
 export class TupleItemsService {
-    create(createTupleItemDto: CreateTupleItemDto) {
-        return "This action adds a new tupleItem";
-    }
+    constructor(
+        @InjectRepository(TupleItem)
+        private tupleItemsRepository: Repository<TupleItem>
+    ) {}
 
-    findAll() {
-        return `This action returns all tupleItems`;
+    async create(createTupleItemDto: CreateTupleItemDto) {
+        const tupleItem = Object.assign(new TupleItem(), createTupleItemDto);
+        const { id } = await this.tupleItemsRepository.save(tupleItem);
+        return this.findOne(id);
     }
 
     findOne(id: number) {
-        return `This action returns a #${id} tupleItem`;
+        return this.tupleItemsRepository.findOneOrFail(id);
     }
 
-    update(id: number, updateTupleItemDto: UpdateTupleItemDto) {
-        return `This action updates a #${id} tupleItem`;
+    async update(id: number, updateTupleItemDto: UpdateTupleItemDto) {
+        await this.tupleItemsRepository.update(id, updateTupleItemDto);
+        return this.findOne(id);
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} tupleItem`;
+    async batchUpdate(tupleItems: Partial<TupleItem>[]) {
+        await this.tupleItemsRepository.save(tupleItems);
+    }
+
+    async delete(id: number) {
+        await this.tupleItemsRepository.delete(id);
+        return;
     }
 }

@@ -1,4 +1,4 @@
-import { PartialType } from "@nestjs/mapped-types";
-import { CreateTupleItemDto } from "./create-tuple-item.dto";
+import { PartialType, PickType } from "@nestjs/mapped-types";
+import { TupleItem } from "../entities/tuple-item.entity";
 
-export class UpdateTupleItemDto extends PartialType(CreateTupleItemDto) {}
+export class UpdateTupleItemDto extends PartialType(PickType(TupleItem, ["isChecked", "value"])) {}
