@@ -28,7 +28,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_BACKEND }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_BACKEND }}
             - run: cd backend && npm install
     install-frontend:
         name: Install Frontend
@@ -63,7 +63,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_BACKEND }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_BACKEND }}
             - run: cd backend && npm run lint
     lint-frontend:
         name: Lint Frontend
@@ -87,7 +87,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_BACKEND }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_BACKEND }}
             - run: cd backend && npm run test
     test-frontend:
         name: Test Frontend
