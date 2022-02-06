@@ -84,7 +84,11 @@ export class HttpService {
     private mapValuesDeep(response: any) {
         return cloneDeepWith(response, (value) => {
             if (!isObject(value)) {
-                if (isString(value) && !isNaN(Date.parse(value))) {
+                if (
+                    isString(value) &&
+                    !isNaN(Date.parse(value)) &&
+                    new Date(value).getFullYear() >= 2022
+                ) {
                     return new Date(value);
                 } else {
                     return value;
