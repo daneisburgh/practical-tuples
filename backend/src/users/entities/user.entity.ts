@@ -31,10 +31,7 @@ export class User {
     @MaxLength(32)
     connectionId?: string;
 
-    @OneToOne(() => Connection, (connection) => connection.user, {
-        eager: true,
-        onDelete: "SET NULL"
-    })
+    @OneToOne(() => Connection, (connection) => connection.user, { onDelete: "SET NULL" })
     @JoinColumn()
     connection?: Connection;
 

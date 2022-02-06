@@ -1,5 +1,5 @@
 import { Exclude } from "class-transformer";
-import { IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsNumber, IsString, MaxLength } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -14,6 +14,7 @@ import { Tuple } from "../../tuples/entities/tuple.entity";
 @Entity()
 export class TupleItem {
     @PrimaryGeneratedColumn()
+    @IsNumber()
     id: number;
 
     @CreateDateColumn()
@@ -22,15 +23,24 @@ export class TupleItem {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Column({ nullable: false })
+    @Column({ nullable: false, length: 20, default: "New Tuple Item" })
     @IsString()
+    @MaxLength(20)
     value: string;
+
+    @Column({ nullable: false })
+    @IsNumber()
+    order: number;
+
+    @Column({ nullable: false, default: false })
+    @IsBoolean()
+    isChecked: boolean;
 
     @Column()
     @IsNumber()
     @Exclude({ toPlainOnly: true })
     tupleId: number;
 
-    @ManyToOne(() => Tuple, (tuple) => tuple.tupleItems, { eager: true })
+    @ManyToOne(() => Tuple, (tuple) => tuple.tupleItems, { onDelete: "CASCADE" })
     tuple: Tuple;
 }

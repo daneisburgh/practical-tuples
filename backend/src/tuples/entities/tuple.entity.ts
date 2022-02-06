@@ -1,4 +1,4 @@
-import { IsEnum, IsString } from "class-validator";
+import { IsEnum, IsString, MaxLength } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -29,18 +29,19 @@ export class Tuple {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @Column({ nullable: false, default: "New Tuple" })
+    @Column({ nullable: false, length: 20, default: "New Tuple" })
     @IsString()
+    @MaxLength(20)
     name: string;
 
     @Column({ type: "enum", enum: TupleType, nullable: false, default: TupleType.list })
     @IsEnum(TupleType)
     type: TupleType;
 
-    @ManyToOne(() => User, { eager: true })
+    @ManyToOne(() => User)
     creator: User;
 
-    @ManyToMany(() => User, (user) => user.tuples, { eager: true, onDelete: "CASCADE" })
+    @ManyToMany(() => User, (user) => user.tuples, { onDelete: "CASCADE" })
     users: User[];
 
     @OneToMany(() => TupleItem, (tupleItem) => tupleItem.tuple)
