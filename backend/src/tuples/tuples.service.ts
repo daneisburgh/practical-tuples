@@ -23,17 +23,17 @@ export class TuplesService {
 
     findOne(id: number) {
         return this.tuplesRepository.findOneOrFail(id, {
-            relations: ["tupleItems"]
+            relations: ["creator", "users", "tupleItems"]
         });
-    }
-
-    async remove(id: number) {
-        await this.tuplesRepository.delete(id);
-        return;
     }
 
     async update(id: number, updateTupleDto: UpdateTupleDto) {
         await this.tuplesRepository.update(id, updateTupleDto);
         return this.findOne(id);
+    }
+
+    async delete(id: number) {
+        await this.tuplesRepository.delete(id);
+        return;
     }
 }

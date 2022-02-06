@@ -9,6 +9,7 @@ import { UsersModule } from "../users/users.module";
 @Module({
     imports: [TypeOrmModule.forFeature([Tuple]), UsersModule],
     controllers: [TuplesController],
-    providers: [TuplesService]
+    providers: [TuplesService],
+    exports: [TuplesService]
 })
 export class TuplesModule {}
