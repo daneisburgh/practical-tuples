@@ -73,12 +73,15 @@ export class TuplePage implements OnInit {
 
     ngOnInit() {
         const id = toInteger(this.activatedRoute.snapshot.paramMap.get("id"));
-        const tuple = this.user.tuples.find((t) => t.id === id);
 
-        if (!tuple) {
-            this.router.navigateByUrl("/error", { skipLocationChange: true });
-        } else {
-            this.tuple = tuple;
+        if (this.user) {
+            const tuple = this.user.tuples.find((t) => t.id === id);
+
+            if (!tuple) {
+                this.router.navigateByUrl("/error", { skipLocationChange: true });
+            } else {
+                this.tuple = tuple;
+            }
         }
     }
 
