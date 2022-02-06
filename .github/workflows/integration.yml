@@ -15,7 +15,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_ROOT }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_ROOT }}
             - run: node --version
             - run: npm --version
             - run: npm install
@@ -39,7 +39,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_FRONTEND }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_FRONTEND }}
             - run: cd frontend && npm install
     format:
         name: Format
@@ -51,7 +51,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_ROOT }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_ROOT }}
             - run: npm run format
     lint-backend:
         name: Lint Backend
@@ -75,7 +75,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_FRONTEND }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_FRONTEND }}
             - run: cd frontend && npm run lint
     test-backend:
         name: Test Backend
@@ -99,7 +99,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_FRONTEND }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_FRONTEND }}
             - run: cd frontend && npm run test
     release:
         name: Release
@@ -112,7 +112,7 @@ jobs:
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
-                  cache-dependency-path: ${{ NODE_DEPENDENCY_LOCK_ROOT }}
+                  cache-dependency-path: ${{ env.NODE_DEPENDENCY_LOCK_ROOT }}
             - run: npm run release
               env:
                   GH_TOKEN: ${{ secrets.GH_TOKEN }}
