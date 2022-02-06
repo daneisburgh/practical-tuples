@@ -1,46 +1,105 @@
-ion-grid {
+input {
+    max-width: 184px;
+}
+
+ion-checkbox {
+    margin: 0 8px 0 0;
+}
+
+ion-reorder {
+    margin: 0 8px 0 -8px;
+}
+
+#page-grid {
     padding: 8px !important;
+}
 
-    #title-row {
-        ion-col,
-        ion-col span {
-            font-size: 20px;
+#title-row {
+    input {
+        max-width: 232px;
+    }
+
+    ion-col,
+    ion-col span,
+    .icon-button ion-icon {
+        font-size: 20px;
+    }
+
+    #title-checkbox {
+        ion-checkbox {
+            margin: 0 4px 0 12px;
         }
 
-        ion-col:first-child {
-            display: flex;
-        }
-
-        ion-col span {
-            cursor: pointer;
-        }
-
-        .title-button {
-            margin: 0;
-            --padding-start: 8px;
-            --padding-end: 8px;
-
-            &#title-button-delete ion-spinner {
-                margin-right: -4px;
-            }
-
-            &#title-button-save {
-                margin-left: 8px;
-
-                ion-spinner {
-                    margin-left: -4px;
-                    margin-right: -4px;
-                }
-            }
-
-            ion-icon {
-                font-size: 20px;
-            }
+        ion-spinner {
+            margin: 0 0 0 6px;
         }
     }
 
-    #add-tuple-item {
+    .icon-button {
+        height: 32px;
+    }
+
+    .save-button ion-spinner {
+        margin-left: -4px;
+        margin-right: -4px;
+    }
+
+    .delete-button {
+        margin-left: 6px;
+
+        ion-spinner {
+            margin-left: 0;
+            margin-right: -8px;
+        }
+    }
+}
+
+#row-tuple-list {
+    margin: -4px 0 16px;
+
+    ion-item {
+        --inner-padding-end: 2px;
+    }
+}
+
+#row-add-tuple-item {
+    margin-top: 8px;
+
+    ion-button {
         width: 123px;
         margin: 0;
     }
+}
+
+.icon-button {
+    height: 30px;
+    margin: 0;
+    --padding-start: 8px;
+    --padding-end: 8px;
+}
+
+.save-button {
+    margin-left: 6px;
+}
+
+.delete-button {
+    margin-left: 5px;
+}
+
+.save-button ion-spinner {
+    margin-left: -6px;
+    margin-right: -4px;
+}
+
+.add-button ion-spinner {
+    margin-right: -6px;
+}
+
+.delete-button ion-spinner {
+    margin-left: -6px;
+    margin-right: -6px;
+}
+
+.line-through {
+    text-decoration: line-through;
 }

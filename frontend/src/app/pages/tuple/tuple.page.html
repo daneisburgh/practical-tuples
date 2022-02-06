@@ -1,28 +1,29 @@
 <div *ngIf="tuple" class="page">
-    <ion-grid>
+    <ion-grid id="page-grid">
         <ion-row id="title-row" class="ion-margin-top">
-            <ion-col *ngIf="!showTupleNameInput" class="ion-align-items-center">
+            <ion-col *ngIf="!showTupleNameInput" class="d-flex ion-align-items-center">
                 {{ tuple.name }}
                 <ion-button
-                    class="title-button"
+                    class="icon-button"
                     color="dark"
                     fill="clear"
                     [disabled]="deletingTuple"
                     (click)="toggleTupleNameInput()"
                 >
-                    <ion-icon slot="icon-only" name="create"></ion-icon>
+                    <ion-icon name="create"></ion-icon>
                 </ion-button>
             </ion-col>
-            <ion-col *ngIf="showTupleNameInput" class="ion-align-items-center">
+            <ion-col *ngIf="showTupleNameInput" class="d-flex ion-align-items-center">
                 <input
+                    #input
                     maxlength="20"
                     [disabled]="updatingTupleName"
                     [value]="tuple.name"
                     [(ngModel)]="tupleNameInput"
+                    (focusout)="handleInputElementFocusOut()"
                 />
                 <ion-button
-                    id="title-button-save"
-                    class="title-button"
+                    class="icon-button save-button"
                     color="dark"
                     fill="clear"
                     [disabled]="tupleNameInput === tuple.name || updatingTupleName"
@@ -32,22 +33,31 @@
                     <ion-spinner *ngIf="updatingTupleName" name="lines" color="dark"></ion-spinner>
                 </ion-button>
                 <ion-button
-                    class="title-button"
+                    *ngIf="!updatingTupleName"
+                    class="icon-button"
                     color="dark"
                     fill="clear"
-                    [disabled]="updatingTupleName"
                     (click)="showTupleNameInput = false"
                 >
                     <ion-icon slot="icon-only" name="close"></ion-icon>
                 </ion-button>
             </ion-col>
-            <ion-col class="ion-text-end">
+            <ion-col class="d-flex ion-align-items-center ion-justify-content-end">
+                <div id="title-checkbox" class="d-flex ion-align-items-center">
+                    Checkbox:
+                    <ion-checkbox
+                        *ngIf="!updatingTupleType"
+                        [checked]="isTupleTypeCheckbox"
+                        [disabled]="deletingTuple"
+                        (ionChange)="updateTupleType()"
+                    ></ion-checkbox>
+                    <ion-spinner *ngIf="updatingTupleType" name="lines"></ion-spinner>
+                </div>
                 <ion-button
-                    id="title-button-delete"
-                    class="title-button"
+                    class="icon-button delete-button"
                     color="danger"
                     fill="clear"
-                    [disabled]="deletingTuple || showTupleNameInput"
+                    [disabled]="deletingTuple"
                     (click)="deleteTuple()"
                 >
                     <ion-icon *ngIf="!deletingTuple" slot="icon-only" name="trash"></ion-icon>
@@ -60,19 +70,125 @@
                 <hr />
             </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row *ngIf="tuple.tupleItems.length > 0" id="row-tuple-list">
             <ion-col>
-                <ion-reorder-group>
+                <ion-reorder-group
+                    [disabled]="tuple.tupleItems.length < 2"
+                    (ionItemReorder)="reorder($event)"
+                >
                     <ion-item *ngFor="let tupleItem of tuple.tupleItems">
-                        <ion-label>{{ tupleItem.value }}</ion-label>
+                        <ion-reorder slot="start"></ion-reorder>
+                        <ion-checkbox
+                            *ngIf="isTupleTypeCheckbox"
+                            [checked]="tupleItem.isChecked"
+                            [disabled]="deletingTuple"
+                            (ionChange)="updateTupleItemChecked(tupleItem)"
+                        ></ion-checkbox>
+                        <ion-label class="d-flex ion-align-items-center">
+                            <span
+                                *ngIf="!showTupleItemValueInput(tupleItem.id)"
+                                [ngClass]="{
+                                    'line-through': isTupleTypeCheckbox && tupleItem.isChecked
+                                }"
+                            >
+                                {{ tupleItem.value }}
+                            </span>
+                            <ion-button
+                                *ngIf="!showTupleItemValueInput(tupleItem.id)"
+                                class="icon-button"
+                                color="dark"
+                                fill="clear"
+                                [disabled]="deletingTuple || updatingTupleItemValue"
+                                (click)="toggleTupleItemValueInput(tupleItem)"
+                            >
+                                <ion-icon name="create"></ion-icon>
+                            </ion-button>
+                            <input
+                                #input
+                                *ngIf="showTupleItemValueInput(tupleItem.id)"
+                                maxlength="20"
+                                [disabled]="updatingTupleItemValue"
+                                [value]="tupleItem.value"
+                                [(ngModel)]="tupleItemValueInput"
+                                (focusout)="handleInputElementFocusOut()"
+                            />
+                            <ion-button
+                                *ngIf="showTupleItemValueInput(tupleItem.id)"
+                                class="icon-button save-button"
+                                color="dark"
+                                fill="clear"
+                                [disabled]="
+                                    tupleItemValueInput === tupleItem.value ||
+                                    updatingTupleItemValue
+                                "
+                                (click)="updateTupleItemValue()"
+                            >
+                                <ion-icon
+                                    *ngIf="!updatingTupleItemValue"
+                                    slot="icon-only"
+                                    name="save"
+                                ></ion-icon>
+                                <ion-spinner
+                                    *ngIf="updatingTupleItemValue"
+                                    name="lines"
+                                    color="dark"
+                                ></ion-spinner>
+                            </ion-button>
+                            <ion-button
+                                *ngIf="showTupleItemValueInput(tupleItem.id)"
+                                class="icon-button"
+                                color="dark"
+                                fill="clear"
+                                (click)="showTupleItemValueInputId = -1"
+                            >
+                                <ion-icon slot="icon-only" name="close"></ion-icon>
+                            </ion-button>
+                        </ion-label>
+                        <ion-button
+                            class="icon-button add-button"
+                            color="primary"
+                            fill="clear"
+                            [disabled]="
+                                creatingTupleItemAfterTupleItemId === tupleItem.id || deletingTuple
+                            "
+                            (click)="createTupleItem(tupleItem.id)"
+                        >
+                            <ion-icon
+                                *ngIf="creatingTupleItemAfterTupleItemId !== tupleItem.id"
+                                slot="icon-only"
+                                name="add"
+                            ></ion-icon>
+                            <ion-spinner
+                                *ngIf="creatingTupleItemAfterTupleItemId === tupleItem.id"
+                                name="lines"
+                                color="primary"
+                            ></ion-spinner>
+                        </ion-button>
+                        <ion-button
+                            class="icon-button delete-button"
+                            color="danger"
+                            fill="clear"
+                            [disabled]="deletingTupleItemId === tupleItem.id || deletingTuple"
+                            (click)="deleteTupleItem(tupleItem.id)"
+                        >
+                            <ion-icon
+                                *ngIf="deletingTupleItemId !== tupleItem.id"
+                                slot="icon-only"
+                                name="trash"
+                            ></ion-icon>
+                            <ion-spinner
+                                *ngIf="deletingTupleItemId === tupleItem.id"
+                                name="lines"
+                                color="danger"
+                            ></ion-spinner>
+                        </ion-button>
                     </ion-item>
                 </ion-reorder-group>
             </ion-col>
         </ion-row>
-        <ion-row>
+        <ion-row id="row-add-tuple-item">
             <ion-col>
                 <ion-button
-                    id="add-tuple-item"
                     [disabled]="creatingTupleItem || deletingTuple"
                     (click)="createTupleItem()"
                 >
