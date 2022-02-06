@@ -2,17 +2,12 @@ import { NgModule } from "@angular/core";
 import { PreloadAllModules, RouterModule, Routes } from "@angular/router";
 import { ErrorPage } from "./pages/error/error.page";
 import { HomePage } from "./pages/home/home.page";
-import { SettingsPage } from "./pages/settings/settings.page";
 import { TuplePage } from "./pages/tuple/tuple.page";
 
 const routes: Routes = [
     {
         path: "",
         component: HomePage
-    },
-    {
-        path: "settings",
-        component: SettingsPage
     },
     {
         path: "tuple/:id",
