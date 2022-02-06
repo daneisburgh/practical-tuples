@@ -11,11 +11,10 @@ import { AppRoutingModule } from "./app-routing.module";
 import { FooterComponent } from "./components/footer/footer.component";
 import { ErrorPage } from "./pages/error/error.page";
 import { HomePage } from "./pages/home/home.page";
-import { SettingsPage } from "./pages/settings/settings.page";
 import { TuplePage } from "./pages/tuple/tuple.page";
 
 @NgModule({
-    declarations: [AppComponent, FooterComponent, ErrorPage, HomePage, SettingsPage, TuplePage],
+    declarations: [AppComponent, FooterComponent, ErrorPage, HomePage, TuplePage],
     entryComponents: [],
     imports: [
         CommonModule,
