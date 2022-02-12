@@ -5,6 +5,8 @@ import { Repository } from "typeorm";
 import { TuplesController } from "./tuples.controller";
 import { TuplesService } from "./tuples.service";
 import { Tuple } from "./entities/tuple.entity";
+import { ConnectionsService } from "../connections/connections.service";
+import { Connection } from "../connections/entities/connection.entity";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
 import { UserGuard } from "../users/guards/user.guard";
@@ -18,11 +20,16 @@ describe("TuplesController", () => {
             controllers: [TuplesController],
             providers: [
                 TuplesService,
+                ConnectionsService,
                 UsersService,
                 UserGuard,
                 UserConnectionGuard,
                 {
                     provide: getRepositoryToken(Tuple),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(Connection),
                     useClass: Repository
                 },
                 {

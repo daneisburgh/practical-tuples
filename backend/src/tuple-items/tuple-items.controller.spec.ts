@@ -7,6 +7,8 @@ import { TupleItemsController } from "./tuple-items.controller";
 import { TupleItemsService } from "./tuple-items.service";
 import { TuplesService } from "../tuples/tuples.service";
 import { Tuple } from "../tuples/entities/tuple.entity";
+import { ConnectionsService } from "../connections/connections.service";
+import { Connection } from "../connections/entities/connection.entity";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
 import { UserGuard } from "../users/guards/user.guard";
@@ -21,6 +23,7 @@ describe("TupleItemsController", () => {
             providers: [
                 TupleItemsService,
                 TuplesService,
+                ConnectionsService,
                 UsersService,
                 UserGuard,
                 UserConnectionGuard,
@@ -30,6 +33,10 @@ describe("TupleItemsController", () => {
                 },
                 {
                     provide: getRepositoryToken(Tuple),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(Connection),
                     useClass: Repository
                 },
                 {
