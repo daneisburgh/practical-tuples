@@ -6,6 +6,7 @@
         "prepare": "husky install",
         "commit": "cz",
         "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+        "update-all": "npm update && npm audit --fix && cd backend && npm update && npm audit --fix && cd ../frontend && npm update && npm audit --fix",
         "start": "npm-run-all --parallel --race --print-label database backend frontend",
         "database": "cd backend && docker-compose up",
         "backend": "npm run --prefix backend start",
