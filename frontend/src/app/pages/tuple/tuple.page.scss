@@ -46,10 +46,11 @@ ion-reorder {
 
     .delete-button {
         margin-left: 6px;
+        margin-right: -1px;
 
         ion-spinner {
-            margin-left: 0;
-            margin-right: -8px;
+            margin-left: -4px;
+            margin-right: -4px;
         }
     }
 }
