@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import { remove } from "lodash";
 
+import { TupleItem } from "../tuple-items/tuple-items.service";
 import { User, UsersService } from "../users/users.service";
 import { HttpService } from "../../utils/http/http.service";
-import { TupleItem } from "../tuple-items/tuple-items.service";
 
 const route = "/tuples";
 
@@ -36,9 +36,7 @@ export class TuplesService {
     }
 
     async update(id: number, tuple: Partial<Tuple>) {
-        tuple = (await this.httpService.patch(`${route}/${id}`, tuple)) as Tuple;
-        const tupleIndex = this.usersService.user.tuples.findIndex((t) => t.id === tuple.id);
-        this.usersService.user.tuples[tupleIndex] = tuple as Tuple;
+        await this.httpService.patch(`${route}/${id}`, tuple);
     }
 
     async delete(id: number) {

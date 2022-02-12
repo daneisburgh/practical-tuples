@@ -29,7 +29,7 @@ export class UsersService {
         private storageService: StorageService,
         private webSocketService: WebSocketService
     ) {
-        this.webSocketService.connectionEvent.subscribe(async (event) => {
+        this.webSocketService.connectionEvent.subscribe((event) => {
             switch (event) {
                 case "connectionId":
                     this.connect();
@@ -38,6 +38,11 @@ export class UsersService {
                     this.user = undefined;
                     break;
             }
+        });
+
+        this.webSocketService.tupleEvent.subscribe((tuple) => {
+            const tupleIndex = this.user.tuples.findIndex((t) => t.id === tuple.id);
+            this.user.tuples[tupleIndex] = tuple;
         });
     }
 

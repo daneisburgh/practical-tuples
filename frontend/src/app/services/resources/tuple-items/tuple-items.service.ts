@@ -21,18 +21,22 @@ export class TupleItemsService {
     constructor(private httpService: HttpService, private usersService: UsersService) {}
 
     async create(tupleId: number, order: number) {
-        return (await this.httpService.post(route, { tupleId, order })) as TupleItem;
+        await this.httpService.post(route, { tupleId, order });
     }
 
-    async update(id: number, tupleItem: Partial<TupleItem>) {
-        return (await this.httpService.patch(`${route}/${id}`, tupleItem)) as TupleItem;
+    async update(id: number, partialTupleItem: Partial<TupleItem>) {
+        await this.httpService.patch(`${route}/${id}`, partialTupleItem);
     }
 
-    async batchUpdate(tupleId: number, tupleItems: Partial<TupleItem>[]) {
-        return (await this.httpService.patch(`${route}`, { tupleId, tupleItems })) as TupleItem;
+    async reorder(tupleId: number, tupleItems: Pick<TupleItem, "order">[]) {
+        await this.batchUpdate(tupleId, tupleItems);
     }
 
     async delete(id: number) {
         await this.httpService.delete(`${route}/${id}`);
+    }
+
+    private async batchUpdate(tupleId: number, tupleItems: Partial<TupleItem>[]) {
+        await this.httpService.patch(`${route}`, { tupleId, tupleItems });
     }
 }
