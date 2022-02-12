@@ -10,13 +10,6 @@ import fs from "fs";
 import { AppModule } from "./app.module";
 import { ConnectionsService } from "./connections/connections.service";
 
-type WebSocketEvent = {
-    requestContext: {
-        connectionId: string;
-        eventType: "CONNECT" | "DISCONNECT";
-    };
-};
-
 let app: INestApplication;
 
 const bootstrap = async () => {
@@ -54,21 +47,36 @@ export const handleHttpRequest = async (event: any, context: Context, callback: 
     return server(event, context, callback);
 };
 
+type WebSocketEvent = {
+    body?: string;
+    requestContext: {
+        connectionId: string;
+        eventType: "CONNECT" | "DISCONNECT" | "MESSAGE";
+    };
+};
+
 export const handleWebSocketConnection = async (event: WebSocketEvent) => {
     app = app ?? (await bootstrap());
 
     const connectionsService = app.get(ConnectionsService);
 
     const {
+        body,
         requestContext: { connectionId, eventType }
     } = event;
 
-    switch (eventType) {
+    switch (connectionId && eventType) {
         case "CONNECT":
             await connectionsService.create(connectionId);
             break;
         case "DISCONNECT":
             await connectionsService.delete(connectionId);
+            break;
+        case "MESSAGE":
+            if (body) {
+                await connectionsService.message(connectionId, body);
+            }
+
             break;
     }
 };

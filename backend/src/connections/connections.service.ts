@@ -21,7 +21,7 @@ export class ConnectionsService {
         const connection = new Connection();
         connection.id = connectionId;
         await this.connectionsRepository.save(connection);
-        this.postToConnection(connectionId, { connectionId });
+        await this.postToConnection(connectionId, { connectionId });
     }
 
     findOne(id: string) {
@@ -32,8 +32,18 @@ export class ConnectionsService {
         return this.connectionsRepository.delete(connectionId);
     }
 
-    postToConnection(connectionId: string, data: object) {
-        this.apig
+    async message(connectionId: string, body: string) {
+        const { action } = JSON.parse(body);
+
+        switch (action) {
+            case "ping":
+                await this.postToConnection(connectionId, { action: "pong" });
+                break;
+        }
+    }
+
+    async postToConnection(connectionId: string, data: object) {
+        await this.apig
             .postToConnection({
                 ConnectionId: connectionId,
                 Data: JSON.stringify(data)
