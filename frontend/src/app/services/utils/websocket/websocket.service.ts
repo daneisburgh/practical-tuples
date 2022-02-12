@@ -1,10 +1,13 @@
 import { EventEmitter, Injectable } from "@angular/core";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
-import { environment } from "src/environments/environment";
+import { Tuple } from "../../resources/tuples/tuples.service";
+import { environment } from "../../../../environments/environment";
 
 type Message = {
+    action: string;
     connectionId: string;
+    tuple: Tuple;
 };
 
 @Injectable({
@@ -12,6 +15,7 @@ type Message = {
 })
 export class WebSocketService {
     connectionEvent = new EventEmitter<"connected" | "connectionId" | "disconnected">();
+    tupleEvent = new EventEmitter<Tuple>();
     connectionId?: string;
 
     private subject?: WebSocketSubject<any>;
@@ -30,7 +34,7 @@ export class WebSocketService {
         });
 
         this.subject.subscribe({
-            next: (message) => this.handleMessage(message),
+            next: (message) => this.receive(message),
             error: (error) => console.error(error)
         });
     }
@@ -46,13 +50,32 @@ export class WebSocketService {
         this.connectionEvent.emit("disconnected");
     }
 
-    private async handleMessage(message: Message) {
-        console.log("MESSAGE", message);
-        const { connectionId } = message;
+    private async receive(message: Message) {
+        console.log("RECEIVE", message);
+        const { action, connectionId, tuple } = message;
 
-        if (connectionId) {
+        if (action) {
+            switch (action) {
+                case "pong":
+                    this.pingPong();
+                    break;
+            }
+        } else if (connectionId) {
             this.connectionId = connectionId;
             this.connectionEvent.emit("connectionId");
+            this.pingPong();
+        } else if (tuple) {
+            this.tupleEvent.emit(tuple);
         }
+    }
+
+    private pingPong() {
+        setTimeout(() => this.send("ping"), 60000);
+    }
+
+    private send(action: string) {
+        const body = { action };
+        console.log("SEND", body);
+        this.subject.next(body);
     }
 }
