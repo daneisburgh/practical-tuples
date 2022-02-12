@@ -4,39 +4,69 @@
 >
     Welcome to Practical Tuples!
     <ion-button
-        id="first-tuple"
+        id="create-first-tuple-button"
         class="ion-margin-top"
-        [disabled]="creatingTuple"
+        [disabled]="isCreatingTuple"
         (click)="createTuple()"
     >
-        <ion-label *ngIf="!creatingTuple">Create your first Tuple</ion-label>
-        <ion-spinner *ngIf="creatingTuple" name="lines"></ion-spinner>
+        <ion-label *ngIf="!isCreatingTuple">Create your first Tuple</ion-label>
+        <ion-spinner *ngIf="isCreatingTuple" name="lines"></ion-spinner>
     </ion-button>
 </div>
 <div *ngIf="user && user.tuples.length > 0" class="page">
     <ion-grid>
         <ion-row>
-            <ion-col *ngFor="let tuple of user.tuples" size="12" size-sm="6" size-md="4">
-                <ion-card [routerLink]="'/tuple/' + tuple.id">
+            <ion-col *ngFor="let tuple of user.tuples" size="12" size-sm="6">
+                <ion-card>
                     <ion-card-header>
-                        <ion-card-title>
-                            {{ tuple.name }}
-                            <hr class="ion-no-margin ion-margin-top" />
+                        <ion-card-title class="d-flex ion-align-items-center">
+                            <a
+                                [routerLink]="
+                                    deletingTupleId === tuple.id ? '' : '/tuple/' + tuple.id
+                                "
+                                [ngClass]="{ disabled: deletingTupleId === tuple.id }"
+                            >
+                                {{ tuple.name }}
+                            </a>
+                            <ion-button
+                                id="delete-button"
+                                color="danger"
+                                fill="clear"
+                                [disabled]="isInputDisabled"
+                                (click)="deleteTuple(tuple)"
+                            >
+                                <ion-icon
+                                    *ngIf="deletingTupleId !== tuple.id"
+                                    slot="icon-only"
+                                    name="trash"
+                                ></ion-icon>
+                                <ion-spinner
+                                    *ngIf="deletingTupleId === tuple.id"
+                                    name="lines"
+                                    color="danger"
+                                ></ion-spinner>
+                            </ion-button>
                         </ion-card-title>
+                        <hr class="ion-no-margin ion-margin-top" />
                     </ion-card-header>
                     <ion-card-content>
-                        Type: {{ tuple.type }}<br />
-                        Tuple Items: {{ tuple.tupleItems.length }}<br />
+                        <ul>
+                            <li>Items: {{ getTupleItemsString(tuple) }}</li>
+                            <li>Updated on: {{ tuple.updatedAt.toLocaleDateString() }}</li>
+                            <li>Updated at: {{ tuple.updatedAt.toLocaleTimeString() }}</li>
+                            <li>Created on: {{ tuple.createdAt.toLocaleDateString() }}</li>
+                            <li>Created at: {{ tuple.createdAt.toLocaleTimeString() }}</li>
+                        </ul>
                     </ion-card-content>
                 </ion-card>
             </ion-col>
         </ion-row>
         <ion-row>
             <ion-col>
-                <ion-button id="add-tuple" [disabled]="creatingTuple" (click)="createTuple()">
-                    <ion-icon *ngIf="!creatingTuple" slot="start" name="add"></ion-icon>
-                    <ion-label *ngIf="!creatingTuple">Add Tuple</ion-label>
-                    <ion-spinner *ngIf="creatingTuple" name="lines"></ion-spinner>
+                <ion-button id="add-tuple" [disabled]="isInputDisabled" (click)="createTuple()">
+                    <ion-icon *ngIf="!isCreatingTuple" slot="start" name="add"></ion-icon>
+                    <ion-label *ngIf="!isCreatingTuple">Add Tuple</ion-label>
+                    <ion-spinner *ngIf="isCreatingTuple" name="lines"></ion-spinner>
                 </ion-button>
             </ion-col>
         </ion-row>

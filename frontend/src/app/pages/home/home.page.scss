@@ -1,9 +1,16 @@
-ion-card-title {
+ion-card-title a,
+#delete-button ion-icon {
     font-size: 20px;
 }
 
 ion-card-content {
+    color: var(--ion-color-dark);
     font-size: 16px;
+
+    ul {
+        margin: 0;
+        padding: 0 0 0 16px;
+    }
 }
 
 #add-tuple {
@@ -11,6 +18,17 @@ ion-card-content {
     margin-left: 8px;
 }
 
-#first-tuple {
+#delete-button {
+    height: 30px;
+    margin: 0 0 0 auto;
+    --padding-start: 4px;
+    --padding-end: 4px;
+
+    ion-spinner {
+        margin-right: -4px;
+    }
+}
+
+#create-first-tuple-button {
     width: 230px;
 }
