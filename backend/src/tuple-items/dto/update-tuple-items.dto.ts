@@ -3,7 +3,7 @@ import { TupleItem } from "../entities/tuple-item.entity";
 
 class UpdateTupleItem extends IntersectionType(
     PickType(TupleItem, ["id"]),
-    PartialType(PickType(TupleItem, ["order"]))
+    PartialType(PickType(TupleItem, ["isChecked", "order"]))
 ) {}
 
 export type UpdateTupleItemsDto = {

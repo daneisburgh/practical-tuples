@@ -34,7 +34,8 @@ export class TupleItemsController {
     @Patch()
     @UseGuards(UserGuard, UserConnectionGuard, TupleUserGuard)
     batchUpdate(@Body() updateTupleItemsDto: UpdateTupleItemsDto) {
-        return this.tupleItemsService.batchUpdate(updateTupleItemsDto.tupleItems);
+        const { tupleId, tupleItems } = updateTupleItemsDto;
+        return this.tupleItemsService.batchUpdate(tupleId, tupleItems);
     }
 
     @Delete(":id")
