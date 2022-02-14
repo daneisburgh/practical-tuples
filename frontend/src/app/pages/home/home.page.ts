@@ -37,27 +37,27 @@ export class HomePage {
     }
 
     async deleteTuple(tuple: Tuple) {
-        const alert = await this.alertController.create({
-            message: "Please confirm tuple deletion. This action is irreversible.",
-            buttons: [
-                {
-                    text: "Delete",
-                    cssClass: "alert-button-danger",
-                    handler: async () => {
-                        this.deletingTupleId = tuple.id;
-                        await this.tuplesService.delete(tuple.id);
-                        this.router.navigateByUrl("/");
-                        this.deletingTupleId = -1;
+        (
+            await this.alertController.create({
+                message: "Please confirm tuple deletion. This action is irreversible.",
+                buttons: [
+                    {
+                        text: "Delete",
+                        cssClass: "alert-button-danger",
+                        handler: async () => {
+                            this.deletingTupleId = tuple.id;
+                            await this.tuplesService.delete(tuple.id);
+                            this.router.navigateByUrl("/");
+                            this.deletingTupleId = -1;
+                        }
+                    },
+                    {
+                        text: "Cancel",
+                        role: "cancel"
                     }
-                },
-                {
-                    text: "Cancel",
-                    role: "cancel"
-                }
-            ]
-        });
-
-        await alert.present();
+                ]
+            })
+        ).present();
     }
 
     getTupleItemsString(tuple: Tuple) {
