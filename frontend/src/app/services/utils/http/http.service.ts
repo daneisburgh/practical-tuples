@@ -60,10 +60,26 @@ export class HttpService {
                 break;
         }
 
-        response = this.mapValuesDeep(response);
+        response = this.mapDateValues(response);
 
         console.log("RESPONSE", type, route, response);
         return response;
+    }
+
+    mapDateValues(object: any) {
+        return cloneDeepWith(object, (value) => {
+            if (!isObject(value)) {
+                if (
+                    isString(value) &&
+                    !isNaN(Date.parse(value)) &&
+                    new Date(value).getFullYear() >= 2022
+                ) {
+                    return new Date(value);
+                } else {
+                    return value;
+                }
+            }
+        });
     }
 
     private async getHeaders() {
@@ -79,21 +95,5 @@ export class HttpService {
         }
 
         return { headers };
-    }
-
-    private mapValuesDeep(response: any) {
-        return cloneDeepWith(response, (value) => {
-            if (!isObject(value)) {
-                if (
-                    isString(value) &&
-                    !isNaN(Date.parse(value)) &&
-                    new Date(value).getFullYear() >= 2022
-                ) {
-                    return new Date(value);
-                } else {
-                    return value;
-                }
-            }
-        });
     }
 }

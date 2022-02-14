@@ -40,9 +40,40 @@ export class UsersService {
             }
         });
 
-        this.webSocketService.tupleEvent.subscribe((tuple) => {
-            const tupleIndex = this.user.tuples.findIndex((t) => t.id === tuple.id);
-            this.user.tuples[tupleIndex] = tuple;
+        this.webSocketService.tupleEvent.subscribe((newTuple) => {
+            newTuple = this.httpService.mapDateValues(newTuple);
+
+            const currentTupleIndex = this.user.tuples.findIndex((t) => t.id === newTuple.id);
+            const currentTuple = this.user.tuples[currentTupleIndex];
+
+            for (const tupleKey of Object.keys(newTuple)) {
+                if (tupleKey !== "tupleItems") {
+                    currentTuple[tupleKey] = newTuple[tupleKey];
+                } else {
+                    for (const newTupleItem of newTuple.tupleItems) {
+                        const currentTupleItemIndex = currentTuple.tupleItems.findIndex(
+                            (ti) => ti.id === newTupleItem.id
+                        );
+
+                        if (currentTupleItemIndex === -1) {
+                            this.user.tuples[currentTupleIndex].tupleItems.splice(
+                                newTupleItem.order,
+                                0,
+                                newTupleItem
+                            );
+                        } else {
+                            const currentTupleItem =
+                                this.user.tuples[currentTupleIndex].tupleItems[
+                                    currentTupleItemIndex
+                                ];
+
+                            for (const tupleItemKey of Object.keys(newTupleItem)) {
+                                currentTupleItem[tupleItemKey] = newTupleItem[tupleItemKey];
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
