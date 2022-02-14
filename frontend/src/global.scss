@@ -76,6 +76,10 @@ ion-list {
     padding: 0 !important;
 }
 
+ion-spinner.disabled {
+    opacity: 0.6;
+}
+
 ion-title {
     font-size: 20px;
 }

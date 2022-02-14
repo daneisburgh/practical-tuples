@@ -3,15 +3,20 @@ input {
 }
 
 ion-checkbox {
-    margin: 0 8px 0 0;
+    margin: 0 12px 0 8px;
 }
 
 ion-reorder {
     margin: 0 8px 0 -8px;
+    display: block !important;
+
+    &.checkbox {
+        margin-right: 0;
+    }
 }
 
 #page-grid {
-    padding: 8px !important;
+    padding: 0 8px 12px !important;
 }
 
 #title-row {
@@ -27,11 +32,11 @@ ion-reorder {
 
     #title-checkbox {
         ion-checkbox {
-            margin: 0 4px 0 12px;
+            margin: 0 5px 0 12px;
         }
 
         ion-spinner {
-            margin: 0 0 0 6px;
+            margin: 0 0 0 7px;
         }
     }
 
@@ -60,6 +65,10 @@ ion-reorder {
 
     ion-item {
         --inner-padding-end: 2px;
+
+        .tuple-item-checkbox-spinner {
+            margin: 0 7px 0 3px;
+        }
     }
 }
 

@@ -7,7 +7,7 @@
                     class="icon-button"
                     color="dark"
                     fill="clear"
-                    [disabled]="isInputDisabled"
+                    [disabled]="isInputDisabled || showTupleItemValueInputId > -1"
                     (click)="toggleTupleNameInput()"
                 >
                     <ion-icon name="create"></ion-icon>
@@ -55,10 +55,14 @@
                     <ion-checkbox
                         *ngIf="!isUpdatingTupleType"
                         [checked]="isTupleTypeCheckbox"
-                        [disabled]="isInputDisabled"
+                        [disabled]="isInputDisabled || tuple.tupleItems.length === 0"
                         (ionChange)="updateTupleType()"
                     ></ion-checkbox>
-                    <ion-spinner *ngIf="isUpdatingTupleType" name="lines"></ion-spinner>
+                    <ion-spinner
+                        *ngIf="isUpdatingTupleType"
+                        name="lines"
+                        [ngClass]="{ disabled: isInputDisabled }"
+                    ></ion-spinner>
                 </div>
                 <ion-button
                     class="icon-button delete-button"
@@ -79,18 +83,27 @@
         </ion-row>
         <ion-row *ngIf="tuple.tupleItems.length > 0" id="row-tuple-list">
             <ion-col>
-                <ion-reorder-group
-                    [disabled]="tuple.tupleItems.length < 2"
-                    (ionItemReorder)="reorder($event)"
-                >
+                <ion-reorder-group [disabled]="isInputDisabled" (ionItemReorder)="reorder($event)">
                     <ion-item *ngFor="let tupleItem of tuple.tupleItems">
-                        <ion-reorder slot="start"></ion-reorder>
+                        <ion-reorder
+                            *ngIf="tuple.tupleItems.length > 1"
+                            slot="start"
+                            [ngClass]="{ checkbox: isTupleTypeCheckbox }"
+                        ></ion-reorder>
                         <ion-checkbox
-                            *ngIf="isTupleTypeCheckbox"
+                            *ngIf="
+                                isTupleTypeCheckbox && updatingTupleItemCheckedId !== tupleItem.id
+                            "
                             [checked]="tupleItem.isChecked"
-                            [disabled]="isDeletingTuple"
+                            [disabled]="isInputDisabled"
                             (ionChange)="updateTupleItemChecked(tupleItem)"
                         ></ion-checkbox>
+                        <ion-spinner
+                            *ngIf="updatingTupleItemCheckedId === tupleItem.id"
+                            name="lines"
+                            class="tuple-item-checkbox-spinner"
+                            [ngClass]="{ disabled: isInputDisabled }"
+                        ></ion-spinner>
                         <ion-label class="d-flex ion-align-items-center">
                             <span
                                 *ngIf="!showTupleItemValueInput(tupleItem.id)"
@@ -105,7 +118,11 @@
                                 class="icon-button"
                                 color="dark"
                                 fill="clear"
-                                [disabled]="isInputDisabled"
+                                [disabled]="
+                                    isInputDisabled ||
+                                    showTupleNameInput ||
+                                    showTupleItemValueInputId > -1
+                                "
                                 (click)="toggleTupleItemValueInput(tupleItem)"
                             >
                                 <ion-icon name="create"></ion-icon>
@@ -142,7 +159,10 @@
                                 ></ion-spinner>
                             </ion-button>
                             <ion-button
-                                *ngIf="showTupleItemValueInput(tupleItem.id)"
+                                *ngIf="
+                                    showTupleItemValueInput(tupleItem.id) &&
+                                    !isUpdatingTupleItemValue
+                                "
                                 class="icon-button"
                                 color="dark"
                                 fill="clear"
