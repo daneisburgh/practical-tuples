@@ -16,9 +16,4 @@ frontend/.browserslistrc
 frontend/.gitignore
 frontend/dist
 frontend/src/assets/*
-
-frontend-original/.angular
-frontend-original/.browserslistrc
-frontend-original/.gitignore
-frontend-original/dist
-frontend-original/src/assets/*
+frontend/www
