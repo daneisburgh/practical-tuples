@@ -13,6 +13,7 @@
         </ion-toolbar>
     </ion-header>
     <ion-content>
+        <ion-progress-bar *ngIf="showProgressBar" type="indeterminate"></ion-progress-bar>
         <ion-router-outlet *ngIf="connected"></ion-router-outlet>
         <div
             *ngIf="!connected"

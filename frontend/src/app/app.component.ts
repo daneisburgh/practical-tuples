@@ -1,6 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Title } from "@angular/platform-browser";
 import { NavigationStart, Router } from "@angular/router";
+import { Device } from "@capacitor/device";
 
 import { User, UsersService } from "./services/resources/users/users.service";
 import { WebSocketService } from "./services/utils/websocket/websocket.service";
@@ -11,6 +12,8 @@ import { WebSocketService } from "./services/utils/websocket/websocket.service";
     styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
+    static showProgressBar = false;
+
     connecting = false;
     connected = false;
     connectingErrorMessage = false;
@@ -29,7 +32,13 @@ export class AppComponent implements OnInit {
         return this.usersService.user as User;
     }
 
+    get showProgressBar() {
+        return AppComponent.showProgressBar;
+    }
+
     ngOnInit() {
+        this.getDeviceInfoHash();
+
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationStart) {
                 this.routeUrl = event.url;
@@ -70,6 +79,22 @@ export class AppComponent implements OnInit {
         this.webSocketService.connect();
     }
 
+    async getDeviceInfoHash() {
+        const deviceInfoString = JSON.stringify(await Device.getInfo());
+        let deviceInfoHash = 0;
+
+        for (let i = 0; i < deviceInfoString.length; i++) {
+            const char = deviceInfoString.charCodeAt(i);
+            // eslint-disable-next-line no-bitwise
+            deviceInfoHash = (deviceInfoHash << 5) - deviceInfoHash + char;
+            // eslint-disable-next-line no-bitwise
+            deviceInfoHash |= 0;
+        }
+
+        deviceInfoHash = Math.abs(deviceInfoHash);
+        console.log(deviceInfoHash);
+    }
+
     isRouteActive(route: string) {
         return route === this.routeUrl;
     }
@@ -89,6 +114,7 @@ export class AppComponent implements OnInit {
         }
 
         this.title.setTitle("Practical Tuples" + (routeTitle ? ` | ${routeTitle}` : ""));
+        AppComponent.showProgressBar = false;
     }
 
     private updateConnectingStatus() {
