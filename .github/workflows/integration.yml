@@ -8,7 +8,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -23,7 +23,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -36,7 +36,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -50,7 +50,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -64,7 +64,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -78,7 +78,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -92,7 +92,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -106,7 +106,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
@@ -121,7 +121,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/setup-node@v3.0.0
               with:
                   node-version: ${{ env.NODE_VERSION }}
             - uses: actions/cache@v2
