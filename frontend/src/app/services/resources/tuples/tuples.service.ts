@@ -18,7 +18,6 @@ export type Tuple = {
     id: number;
     name: string;
     type: TupleType;
-    creator: User;
     users: User[];
     tupleItems: TupleItem[];
 };
@@ -30,7 +29,7 @@ export class TuplesService {
     constructor(private httpService: HttpService, private usersService: UsersService) {}
 
     async create() {
-        const tuple = (await this.httpService.post(route, {})) as Tuple;
+        const tuple = (await this.httpService.post(route)) as Tuple;
         this.usersService.user.tuples.unshift(tuple);
         return tuple;
     }
