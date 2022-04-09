@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import { User } from "./entities/user.entity";
-import { NewConnectionGuard } from "./guards/new-connection.guard";
+import { ConnectionGuard } from "./guards/connection.guard";
 import { UserGuard } from "./guards/user.guard";
 import { ConnectionsService } from "../connections/connections.service";
 import { Connection } from "../connections/entities/connection.entity";
@@ -26,7 +26,7 @@ describe("UsersController", () => {
                     provide: getRepositoryToken(Connection),
                     useClass: Repository
                 },
-                NewConnectionGuard,
+                ConnectionGuard,
                 UserGuard,
                 ConnectionsService
             ]

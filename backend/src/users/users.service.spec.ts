@@ -4,6 +4,9 @@ import { Repository } from "typeorm";
 
 import { UsersService } from "./users.service";
 import { User } from "./entities/user.entity";
+import { Device } from "../devices/entities/device.entity";
+import { Tuple } from "../tuples/entities/tuple.entity";
+import { ConnectionsService } from "../connections/connections.service";
 
 describe("UsersService", () => {
     let service: UsersService;
@@ -12,6 +15,15 @@ describe("UsersService", () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 UsersService,
+                ConnectionsService,
+                {
+                    provide: getRepositoryToken(Device),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(Tuple),
+                    useClass: Repository
+                },
                 {
                     provide: getRepositoryToken(User),
                     useClass: Repository

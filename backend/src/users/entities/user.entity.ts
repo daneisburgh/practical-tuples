@@ -1,19 +1,17 @@
-import { Exclude } from "class-transformer";
-import { IsString, MaxLength } from "class-validator";
+import { IsNumber, IsString, Max, MaxLength, Min } from "class-validator";
 import {
     Column,
     UpdateDateColumn,
     CreateDateColumn,
     Entity,
-    AfterLoad,
-    OneToOne,
-    JoinColumn,
     PrimaryGeneratedColumn,
     ManyToMany,
-    JoinTable
+    JoinTable,
+    OneToMany,
+    AfterLoad
 } from "typeorm";
 
-import { Connection } from "../../connections/entities/connection.entity";
+import { Device } from "../../devices/entities/device.entity";
 import { Tuple } from "../../tuples/entities/tuple.entity";
 
 @Entity()
@@ -27,15 +25,19 @@ export class User {
     @UpdateDateColumn({ type: "timestamptz" })
     updatedAt: Date;
 
-    @Column({ length: 32, nullable: true, select: false, unique: true })
+    @Column({ nullable: true, unique: true })
     @IsString()
-    @MaxLength(32)
-    connectionId?: string;
+    @MaxLength(12)
+    username: string;
 
-    @OneToOne(() => Connection, (connection) => connection.user, { onDelete: "SET NULL" })
-    @JoinColumn()
-    @Exclude()
-    connection?: Connection;
+    @Column({ nullable: false, default: 2 })
+    @IsNumber()
+    @Min(1)
+    @Max(3)
+    maxDevices: number;
+
+    @OneToMany(() => Device, (device) => device.user, { cascade: true })
+    devices: Device[];
 
     @ManyToMany(() => Tuple, (Tuple) => Tuple.users)
     @JoinTable()
@@ -46,6 +48,6 @@ export class User {
 
     @AfterLoad()
     setVariables() {
-        this.isOnline = !!this.connection;
+        this.isOnline = this.devices && !!this.devices.find((device) => device.connection);
     }
 }
