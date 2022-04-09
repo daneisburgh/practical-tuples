@@ -17,37 +17,53 @@ export class ConnectionsService {
         });
     }
 
-    async create(connectionId: string) {
-        const connection = new Connection();
-        connection.id = connectionId;
+    async create(id: string) {
+        const connection = Object.assign(new Connection(), { id });
         await this.connectionsRepository.save(connection);
-        await this.postToConnection(connectionId, { connectionId });
+        await this.postToConnection(id, { connectionId: id });
+    }
+
+    async delete(id: string) {
+        const connection = await this.findOne(id);
+
+        if (connection) {
+            return this.connectionsRepository.delete(connection.id);
+        }
     }
 
     findOne(id: string) {
-        return this.connectionsRepository.findOne(id);
+        return this.connectionsRepository.findOne(id, { relations: ["device"] });
     }
 
-    delete(connectionId: string) {
-        return this.connectionsRepository.delete(connectionId);
+    async update(id: string, partialConnection: Partial<Connection>) {
+        const connection = await this.findOne(id);
+
+        if (connection) {
+            return this.connectionsRepository.update(connection.id, partialConnection);
+        }
     }
 
-    async message(connectionId: string, body: string) {
+    async message(id: string, body: string) {
         const { action } = JSON.parse(body);
 
         switch (action) {
             case "ping":
-                await this.postToConnection(connectionId, { action: "pong" });
+                await this.postToConnection(id, { action: "pong" });
                 break;
         }
     }
 
-    async postToConnection(connectionId: string, data: object) {
-        await this.apig
-            .postToConnection({
-                ConnectionId: connectionId,
-                Data: JSON.stringify(data)
-            })
-            .promise();
+    async postToConnection(id: string, data: object) {
+        try {
+            await this.apig
+                .postToConnection({
+                    ConnectionId: id,
+                    Data: JSON.stringify(data)
+                })
+                .promise();
+        } catch (error) {
+            console.error(error);
+            await this.delete(id);
+        }
     }
 }

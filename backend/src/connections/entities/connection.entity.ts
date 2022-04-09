@@ -1,18 +1,20 @@
 import { IsString, Length } from "class-validator";
 import { CreateDateColumn, Entity, OneToOne, PrimaryColumn } from "typeorm";
 
-import { User } from "../../users/entities/user.entity";
+import { Device } from "../../devices/entities/device.entity";
+
+const connectionIdLength = 32;
 
 @Entity()
 export class Connection {
-    @CreateDateColumn()
-    createdAt: Date;
-
-    @PrimaryColumn({ length: 32 })
+    @PrimaryColumn({ length: connectionIdLength })
+    @Length(1, connectionIdLength)
     @IsString()
-    @Length(4, 12)
     id: string;
 
-    @OneToOne(() => User, (user) => user.connection)
-    user: User;
+    @CreateDateColumn({ type: "timestamptz" })
+    createdAt: Date;
+
+    @OneToOne(() => Device, (device) => device.connection)
+    device: Device;
 }
