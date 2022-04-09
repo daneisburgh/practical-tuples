@@ -1,4 +1,11 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from "@angular/core";
+import {
+    AfterViewInit,
+    Component,
+    ElementRef,
+    HostListener,
+    OnInit,
+    ViewChild
+} from "@angular/core";
 import { AlertController } from "@ionic/angular";
 import { remove, upperFirst } from "lodash";
 
@@ -13,7 +20,7 @@ import { ToastService } from "../../services/utils/toast/toast.service";
     templateUrl: "./account.page.html",
     styleUrls: ["./account.page.scss"]
 })
-export class AccountPage implements OnInit {
+export class AccountPage implements OnInit, AfterViewInit {
     @ViewChild("input") inputElement: ElementRef;
 
     readonly maxDeviceValues = [1, 2, 3];
@@ -75,8 +82,13 @@ export class AccountPage implements OnInit {
     }
 
     ngOnInit() {
-        this.maxDevices = this.user.maxDevices;
         this.setCurrentDeviceId();
+    }
+
+    ngAfterViewInit() {
+        if (this.user) {
+            this.maxDevices = this.user.maxDevices;
+        }
     }
 
     async deleteDevice(id: string) {

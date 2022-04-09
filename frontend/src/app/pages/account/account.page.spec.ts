@@ -1,5 +1,8 @@
+import { HttpClientModule } from "@angular/common/http";
 import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
+import { RouterTestingModule } from "@angular/router/testing";
 import { IonicModule } from "@ionic/angular";
+import { IonicStorageModule } from "@ionic/storage-angular";
 
 import { AccountPage } from "./account.page";
 
@@ -11,7 +14,12 @@ describe("AccountPage", () => {
         waitForAsync(() => {
             TestBed.configureTestingModule({
                 declarations: [AccountPage],
-                imports: [IonicModule.forRoot()]
+                imports: [
+                    HttpClientModule,
+                    IonicModule.forRoot(),
+                    IonicStorageModule.forRoot(),
+                    RouterTestingModule
+                ]
             }).compileComponents();
 
             fixture = TestBed.createComponent(AccountPage);
