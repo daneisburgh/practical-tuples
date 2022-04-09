@@ -4,7 +4,6 @@ import {
     CreateDateColumn,
     Entity,
     ManyToMany,
-    ManyToOne,
     OneToMany,
     PrimaryGeneratedColumn,
     UpdateDateColumn
@@ -29,7 +28,7 @@ export class Tuple {
     @UpdateDateColumn({ type: "timestamptz" })
     updatedAt: Date;
 
-    @Column({ nullable: false, length: 20, default: "New Tuple" })
+    @Column({ nullable: false, length: 20, default: "New tuple" })
     @IsString()
     @MaxLength(20)
     name: string;
@@ -37,9 +36,6 @@ export class Tuple {
     @Column({ type: "enum", enum: TupleType, nullable: false, default: TupleType.list })
     @IsEnum(TupleType)
     type: TupleType;
-
-    @ManyToOne(() => User)
-    creator: User;
 
     @ManyToMany(() => User, (user) => user.tuples, { onDelete: "CASCADE" })
     users: User[];
