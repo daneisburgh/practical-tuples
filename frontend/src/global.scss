@@ -33,28 +33,50 @@
 * {
     font-family: "Roboto";
     font-size: 16px;
+    --ion-text-color: black;
 }
 
-a {
+a,
+span,
+.badge {
     text-decoration: none;
 
     &.disabled {
         cursor: default;
-        text-decoration: none;
+        opacity: 0.6;
     }
+}
+
+h4 {
+    margin: 0;
 }
 
 hr {
     background-color: var(--ion-color-primary);
+
+    &.hr-dark {
+        background-color: #dedede;
+    }
 }
 
 ion-alert {
+    --max-width: 282px !important;
+
     .alert-button-group {
-        padding: 0 16px 16px !important;
+        flex-direction: row !important;
         justify-content: flex-start !important;
+        padding: 0 16px 16px !important;
+
+        .alert-button-cancel {
+            color: var(--ion-text-color);
+        }
 
         .alert-button-danger {
             color: var(--ion-color-danger);
+        }
+
+        .alert-button-primary {
+            color: var(--ion-color-primary);
         }
     }
 
@@ -76,51 +98,156 @@ ion-list {
     padding: 0 !important;
 }
 
-ion-spinner.disabled {
-    opacity: 0.6;
+ion-modal {
+    ion-grid {
+        padding: 0;
+    }
+
+    .ion-page {
+        overflow-y: auto !important;
+    }
+}
+
+ion-popover {
+    --max-width: 186px;
+
+    &.account-max-devices-popover {
+        --max-width: 38px;
+
+        ion-item {
+            cursor: pointer;
+            --min-height: 32px;
+
+            ion-label {
+                margin-left: 14px;
+            }
+
+            ion-radio {
+                margin-left: -38px;
+            }
+        }
+    }
+
+    ion-item {
+        ion-icon,
+        ion-label {
+            color: var(--ion-text-color);
+        }
+
+        ion-icon {
+            margin: 0 8px 2px;
+        }
+    }
+}
+
+ion-progress-bar {
+    position: absolute;
+    z-index: 1000;
 }
 
 ion-title {
     font-size: 20px;
+    color: var(--ion-text-color, #000);
+}
+
+ion-toast {
+    font-size: smaller;
+    --width: fit-content;
+    --max-width: 320px;
+
+    &::part(button) {
+        margin: 6px -2px 0 0;
+    }
+
+    &::part(container) {
+        align-items: start;
+    }
 }
 
 ion-toolbar,
 .page {
-    margin: 0 auto;
+    margin: 0 auto !important;
     min-width: 352px;
     max-width: 768px;
+}
+
+.badge {
+    z-index: -1;
+    position: absolute;
+    padding: 6px;
+    border-radius: 6px;
+    background-color: var(--ion-color-primary);
+
+    &.device-verify-badge {
+        top: 0;
+        right: 8px;
+    }
+
+    &.menu-badge {
+        top: 9px;
+        right: 4px;
+    }
+
+    &.menu-button-badge {
+        top: 8px;
+        left: 58px;
+    }
+
+    &.nav-button-badge {
+        top: 0;
+        right: 2px;
+    }
 }
 
 .d-flex {
     display: flex !important;
 }
 
-.ion-page:not(ion-app) {
-    overflow-y: scroll;
+.icon-button {
+    height: 30px;
+    margin: 0;
+    --padding-start: 8px;
+    --padding-end: 8px;
 }
 
-.page {
-    width: 100%;
-    padding-left: 0;
-    display: flex;
-    flex-direction: column;
+.page-content {
+    --overflow: scroll;
 
-    @media screen and (min-width: 768px) {
-        padding-left: 8px;
-    }
-
-    &.page-height-100 {
-        height: calc(100% - 73px);
+    .page {
+        min-height: calc(100% - 73px);
 
         @media screen and (min-width: 576px) {
-            height: calc(100% - 56px);
+            min-height: calc(100% - 56px);
         }
-    }
 
-    ion-grid:first-child {
         width: 100%;
-        margin: 0;
-        padding: 8px 0;
+        padding-left: 0;
+        display: flex;
+        flex-direction: column;
+
+        .page-grid {
+            margin: 0;
+            padding: 8px 8px 0;
+
+            @media screen and (min-width: 768px) {
+                margin-right: -4px;
+                padding: 8px 0 0 8px;
+            }
+
+            .title-row {
+                input {
+                    max-width: 232px;
+                }
+
+                ion-col {
+                    font-size: 20px;
+                }
+            }
+
+            .save-button {
+                margin-left: 6px;
+            }
+        }
     }
 }
 

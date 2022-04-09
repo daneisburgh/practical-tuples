@@ -12,9 +12,10 @@ import { FooterComponent } from "./components/footer/footer.component";
 import { ErrorPage } from "./pages/error/error.page";
 import { HomePage } from "./pages/home/home.page";
 import { TuplePage } from "./pages/tuple/tuple.page";
+import { AccountPage } from "./pages/account/account.page";
 
 @NgModule({
-    declarations: [AppComponent, FooterComponent, ErrorPage, HomePage, TuplePage],
+    declarations: [AppComponent, ErrorPage, FooterComponent, HomePage, AccountPage, TuplePage],
     entryComponents: [],
     imports: [
         CommonModule,
@@ -23,7 +24,7 @@ import { TuplePage } from "./pages/tuple/tuple.page";
         AppRoutingModule,
         FormsModule,
         ReactiveFormsModule,
-        IonicModule.forRoot({ animated: false, mode: "md" }),
+        IonicModule.forRoot({ mode: "md" }),
         IonicStorageModule.forRoot()
     ],
     providers: [],
