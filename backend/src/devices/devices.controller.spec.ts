@@ -7,6 +7,7 @@ import { DevicesService } from "./devices.service";
 import { Device } from "./entities/device.entity";
 import { ConnectionsService } from "../connections/connections.service";
 import { Connection } from "../connections/entities/connection.entity";
+import { Tuple } from "../tuples/entities/tuple.entity";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
 import { ConnectionGuard } from "../users/guards/connection.guard";
@@ -30,6 +31,10 @@ describe("DevicesController", () => {
                 },
                 {
                     provide: getRepositoryToken(Connection),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(Tuple),
                     useClass: Repository
                 },
                 {

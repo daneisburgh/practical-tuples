@@ -9,6 +9,8 @@ import { ConnectionGuard } from "./guards/connection.guard";
 import { UserGuard } from "./guards/user.guard";
 import { ConnectionsService } from "../connections/connections.service";
 import { Connection } from "../connections/entities/connection.entity";
+import { Device } from "../devices/entities/device.entity";
+import { Tuple } from "../tuples/entities/tuple.entity";
 
 describe("UsersController", () => {
     let controller: UsersController;
@@ -18,17 +20,25 @@ describe("UsersController", () => {
             controllers: [UsersController],
             providers: [
                 UsersService,
-                {
-                    provide: getRepositoryToken(User),
-                    useClass: Repository
-                },
+                UserGuard,
+                ConnectionGuard,
+                ConnectionsService,
                 {
                     provide: getRepositoryToken(Connection),
                     useClass: Repository
                 },
-                ConnectionGuard,
-                UserGuard,
-                ConnectionsService
+                {
+                    provide: getRepositoryToken(Device),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(Tuple),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(User),
+                    useClass: Repository
+                }
             ]
         }).compile();
 

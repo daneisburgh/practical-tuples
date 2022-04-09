@@ -7,6 +7,7 @@ import { User } from "./entities/user.entity";
 import { Device } from "../devices/entities/device.entity";
 import { Tuple } from "../tuples/entities/tuple.entity";
 import { ConnectionsService } from "../connections/connections.service";
+import { Connection } from "../connections/entities/connection.entity";
 
 describe("UsersService", () => {
     let service: UsersService;
@@ -16,6 +17,10 @@ describe("UsersService", () => {
             providers: [
                 UsersService,
                 ConnectionsService,
+                {
+                    provide: getRepositoryToken(Connection),
+                    useClass: Repository
+                },
                 {
                     provide: getRepositoryToken(Device),
                     useClass: Repository
