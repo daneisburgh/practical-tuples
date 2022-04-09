@@ -65,18 +65,20 @@ export const handleWebSocketConnection = async (event: WebSocketEvent) => {
         requestContext: { connectionId, eventType }
     } = event;
 
-    switch (connectionId && eventType) {
-        case "CONNECT":
-            await connectionsService.create(connectionId);
-            break;
-        case "DISCONNECT":
-            await connectionsService.delete(connectionId);
-            break;
-        case "MESSAGE":
-            if (body) {
-                await connectionsService.message(connectionId, body);
-            }
+    if (connectionId && eventType) {
+        switch (eventType) {
+            case "CONNECT":
+                await connectionsService.create(connectionId);
+                break;
+            case "DISCONNECT":
+                await connectionsService.delete(connectionId);
+                break;
+            case "MESSAGE":
+                if (body) {
+                    await connectionsService.message(connectionId, body);
+                }
 
-            break;
+                break;
+        }
     }
 };
