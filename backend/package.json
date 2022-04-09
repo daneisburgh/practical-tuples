@@ -7,7 +7,7 @@
         "serverless:offline": "cross-env NODE_ENV=local serverless offline",
         "serverless:offline:local": "cross-env NODE_ENV=local serverless offline --host 0.0.0.0",
         "nest": "nest start --watch --preserveWatchOutput",
-        "start": "npm run build && npm-run-all --parallel nest serverless:offline",
+        "start": "npm run migration:run && npm-run-all --parallel nest serverless:offline",
         "start:local": "npm run build && npm-run-all --parallel nest serverless:offline:local",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
         "lint:fix": "npm run lint -- --fix",
@@ -20,6 +20,7 @@
         "migration:run": "npm run build && ts-node --transpile-only ./node_modules/typeorm/cli.js migration:run"
     },
     "dependencies": {
+        "@capacitor/device": "^1.1.2",
         "@nestjs/common": "^8.2.6",
         "@nestjs/config": "^1.1.7",
         "@nestjs/core": "^8.2.6",
