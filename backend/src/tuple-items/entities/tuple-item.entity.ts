@@ -23,7 +23,7 @@ export class TupleItem {
     @UpdateDateColumn({ type: "timestamptz" })
     updatedAt: Date;
 
-    @Column({ nullable: false, length: 20, default: "New Tuple Item" })
+    @Column({ nullable: false, length: 20, default: "New tuple item" })
     @IsString()
     @MaxLength(20)
     value: string;

@@ -15,6 +15,11 @@ export class TupleItemsService {
         private tuplesService: TuplesService
     ) {}
 
+    async batchUpdate(tupleId: number, tupleItems: Partial<TupleItem>[]) {
+        await this.tupleItemsRepository.save(tupleItems);
+        await this.tuplesService.update(tupleId, {});
+    }
+
     async create(createTupleItemDto: CreateTupleItemDto) {
         const tupleItem = Object.assign(new TupleItem(), createTupleItemDto);
         const { id, tupleId } = await this.tupleItemsRepository.save(tupleItem);
@@ -22,8 +27,14 @@ export class TupleItemsService {
         return this.findOne(id);
     }
 
+    async delete(id: number) {
+        const tupleItem = await this.findOne(id);
+        await this.tupleItemsRepository.delete(id);
+        await this.tuplesService.update(tupleItem.tupleId, {});
+    }
+
     findOne(id: number) {
-        return this.tupleItemsRepository.findOneOrFail(id);
+        return this.tupleItemsRepository.findOne(id);
     }
 
     async update(id: number, updateTupleItemDto: UpdateTupleItemDto) {
@@ -31,17 +42,5 @@ export class TupleItemsService {
         const tupleItem = await this.findOne(id);
         await this.tuplesService.update(tupleItem.tupleId, {});
         return tupleItem;
-    }
-
-    async batchUpdate(tupleId: number, tupleItems: Partial<TupleItem>[]) {
-        await this.tupleItemsRepository.save(tupleItems);
-        await this.tuplesService.update(tupleId, {});
-    }
-
-    async delete(id: number) {
-        const tupleItem = await this.findOne(id);
-        await this.tupleItemsRepository.delete(id);
-        await this.tuplesService.update(tupleItem.tupleId, {});
-        return;
     }
 }

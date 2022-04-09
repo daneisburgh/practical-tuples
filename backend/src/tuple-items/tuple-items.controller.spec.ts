@@ -12,7 +12,6 @@ import { Connection } from "../connections/entities/connection.entity";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
 import { UserGuard } from "../users/guards/user.guard";
-import { UserConnectionGuard } from "../users/guards/user-connection.guard";
 
 describe("TupleItemsController", () => {
     let controller: TupleItemsController;
@@ -26,7 +25,6 @@ describe("TupleItemsController", () => {
                 ConnectionsService,
                 UsersService,
                 UserGuard,
-                UserConnectionGuard,
                 {
                     provide: getRepositoryToken(TupleItem),
                     useClass: Repository

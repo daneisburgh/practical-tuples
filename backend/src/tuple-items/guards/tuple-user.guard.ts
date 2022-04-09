@@ -16,7 +16,7 @@ export class TupleUserGuard implements CanActivate {
 
         if (!tuple) {
             throw new BadRequestException("Invalid tuple");
-        } else if (!tuple.users.map((u) => u.id).includes(user.id)) {
+        } else if (!user.tuples.find((t) => t.id === tuple.id)) {
             throw new BadRequestException("Invalid tuple user");
         } else {
             return true;

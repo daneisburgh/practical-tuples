@@ -1,14 +1,10 @@
 import { Injectable, CanActivate, ExecutionContext, BadRequestException } from "@nestjs/common";
 
 import { TupleItemsService } from "../tuple-items.service";
-import { TuplesService } from "../../tuples/tuples.service";
 
 @Injectable()
 export class TupleItemUserGuard implements CanActivate {
-    constructor(
-        private tupleItemsService: TupleItemsService,
-        private tuplesService: TuplesService
-    ) {}
+    constructor(private tupleItemsService: TupleItemsService) {}
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const {
@@ -16,13 +12,13 @@ export class TupleItemUserGuard implements CanActivate {
             user
         } = context.switchToHttp().getRequest();
 
-        const { tupleId } = await this.tupleItemsService.findOne(+id);
-        const tuple = await this.tuplesService.findOne(tupleId);
+        const tupleItem = await this.tupleItemsService.findOne(+id);
+        console.log(tupleItem);
 
-        if (!tuple) {
-            throw new BadRequestException("Invalid tuple");
-        } else if (!tuple.users.map((u) => u.id).includes(user.id)) {
-            throw new BadRequestException("Invalid tuple user");
+        if (!tupleItem) {
+            throw new BadRequestException("Invalid tuple item");
+        } else if (!user.tuples.find((t) => t.id === tupleItem.tupleId)) {
+            throw new BadRequestException("Invalid tuple item user");
         } else {
             return true;
         }
