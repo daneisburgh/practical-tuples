@@ -1,6 +1,14 @@
 ion-header {
     ion-toolbar {
-        padding: 0 4px 0 8px;
+        padding: 0 0 0 8px;
+
+        @media screen and (min-width: 768px) {
+            padding: 0;
+        }
+
+        ion-menu-button {
+            font-size: 32px;
+        }
 
         ion-title {
             padding-left: 8px;
@@ -8,8 +16,19 @@ ion-header {
     }
 }
 
-ion-progress-bar {
-    z-index: 1000;
+ion-label.active {
+    text-decoration: underline;
+}
+
+ion-menu {
+    ion-icon,
+    ion-title {
+        color: var(--ion-text-color);
+    }
+
+    ion-icon {
+        margin: 0 16px;
+    }
 }
 
 #loading ion-spinner {
@@ -18,6 +37,7 @@ ion-progress-bar {
     width: $spinner-size;
 }
 
-#disconnected ion-button {
-    width: 100px;
+#disconnected {
+    height: 100%;
+    overflow-y: scroll;
 }

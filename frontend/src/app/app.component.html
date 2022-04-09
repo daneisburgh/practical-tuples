@@ -1,31 +1,59 @@
-<ion-app *ngIf="loading" id="loading" class="ion-justify-content-center ion-align-items-center">
+<ion-app *ngIf="isLoading" id="loading" class="ion-justify-content-center ion-align-items-center">
     <ion-spinner name="lines"></ion-spinner>
 </ion-app>
-<ion-app *ngIf="!loading">
+<ion-app *ngIf="!isLoading">
     <ion-header>
         <ion-toolbar class="toolbar-header-footer">
+            <ion-menu-button *ngIf="displayMenu" slot="end"> </ion-menu-button>
+            <span *ngIf="displayMenuBadge" class="badge menu-badge"></span>
             <ion-img slot="start" src="svg/flat-color-icons/todo_list.svg"></ion-img>
             <ion-title>Practical Tuples</ion-title>
-            <ion-button *ngIf="user" slot="end" color="dark" fill="clear" routerLink="/">
-                <ion-icon slot="start" name="person"></ion-icon>
-                <ion-label>User{{ user.id }}</ion-label>
-            </ion-button>
+            <ion-buttons *ngIf="user && !isSmallScreen && !isCreatingAccount" slot="end">
+                <span *ngFor="let route of routes">
+                    <ion-button [routerLink]="route.url">
+                        <ion-icon slot="start" [name]="route.icon"></ion-icon>
+                        <ion-label [ngClass]="{ active: route.url === routeUrl }">
+                            {{ route.label }}
+                        </ion-label>
+                    </ion-button>
+                    <span *ngIf="displayBadge(route)" class="badge nav-button-badge"></span>
+                </span>
+            </ion-buttons>
         </ion-toolbar>
     </ion-header>
-    <ion-content>
+    <ion-menu #menu *ngIf="displayMenu" contentId="main-content" type="overlay">
+        <ion-header>
+            <ion-toolbar>
+                <ion-title>Menu</ion-title>
+            </ion-toolbar>
+        </ion-header>
+        <ion-content>
+            <ion-list>
+                <ion-item
+                    *ngFor="let route of routes"
+                    [routerLink]="route.url"
+                    (click)="menu.close()"
+                >
+                    <ion-icon slot="start" [name]="route.icon"></ion-icon>
+                    <ion-label [ngClass]="{ active: route.url === routeUrl }">
+                        {{ route.label }}
+                    </ion-label>
+                    <span *ngIf="displayBadge(route)" class="badge menu-button-badge"></span>
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </ion-menu>
+    <ion-content id="main-content">
         <ion-progress-bar *ngIf="showProgressBar" type="indeterminate"></ion-progress-bar>
-        <ion-router-outlet *ngIf="connected"></ion-router-outlet>
-        <div
-            *ngIf="!connected"
-            id="disconnected"
-            class="page page-height-100 ion-justify-content-center ion-align-items-center ion-text-center"
-        >
-            You are not connected.<br />Please connect to continue.
-            <ion-button class="ion-margin-top" [disabled]="connecting" (click)="connect()">
-                <ion-label *ngIf="!connecting">Connect</ion-label>
-                <ion-spinner *ngIf="connecting" name="lines"></ion-spinner>
-            </ion-button>
+        <ion-router-outlet *ngIf="isReady" [animated]="false"></ion-router-outlet>
+        <div *ngIf="!isReady" id="disconnected" class="page-content">
+            <div class="page ion-justify-content-center ion-align-items-center ion-text-center">
+                You are not connected.<br />Please connect to continue.
+                <ion-button class="ion-margin-top" [disabled]="isConnecting" (click)="connect()">
+                    Connect
+                </ion-button>
+            </div>
+            <app-footer></app-footer>
         </div>
-        <app-footer *ngIf="!connected"></app-footer>
     </ion-content>
 </ion-app>
