@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Storage } from "@ionic/storage";
 
 export enum StorageKey {
+    deviceId = "deviceId",
     requestId = "requestId"
 }
 
