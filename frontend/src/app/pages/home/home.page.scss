@@ -1,5 +1,4 @@
-ion-card-title a,
-#delete-button ion-icon {
+ion-card-title a {
     font-size: 20px;
 }
 
@@ -13,22 +12,35 @@ ion-card-content {
     }
 }
 
-#add-tuple {
-    width: 135px;
-    margin-left: 8px;
+#add-device-modal {
+    min-width: 352px;
+    --min-width: 352px;
+
+    @media screen and (min-width: 768px) {
+        --height: 196px;
+        --width: 352px;
+    }
+
+    ion-input {
+        margin-left: -6px;
+    }
+
+    ion-button {
+        margin: 0;
+    }
 }
 
-#delete-button {
+#create-tuple-button {
+    margin-left: 4px;
+}
+
+.delete-button {
     height: 30px;
     margin: 0 0 0 auto;
     --padding-start: 4px;
     --padding-end: 4px;
-
-    ion-spinner {
-        margin-right: -4px;
-    }
 }
 
-#create-first-tuple-button {
-    width: 230px;
+.tuples-row ion-col {
+    padding: 0;
 }
