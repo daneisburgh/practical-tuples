@@ -1,0 +1,34 @@
+#devices-row,
+#friends-row {
+    > ion-col,
+    ion-grid {
+        padding: 0;
+    }
+
+    .section-title {
+        font-size: 18px;
+
+        ion-select {
+            width: 36px;
+            margin: 0;
+            padding: 0;
+            display: inline-flex;
+        }
+    }
+}
+
+#devices-row {
+    margin: 8px 0 16px;
+
+    .device-row ion-col {
+        min-height: 40px;
+    }
+}
+
+#add-friend-row ion-button {
+    margin: 0;
+}
+
+.device-button {
+    margin: -11px 2px 0 0;
+}
