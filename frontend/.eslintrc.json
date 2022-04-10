@@ -9,9 +9,6 @@
     },
     "plugins": ["@typescript-eslint/eslint-plugin", "prettier"],
     "extends": ["plugin:@typescript-eslint/recommended", "prettier"],
-    "rules": {
-        "prettier/prettier": "error"
-    },
     "overrides": [
         {
             "files": ["*.ts"],
