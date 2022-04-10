@@ -13,7 +13,6 @@ export class TupleItemUserGuard implements CanActivate {
         } = context.switchToHttp().getRequest();
 
         const tupleItem = await this.tupleItemsService.findOne(+id);
-        console.log(tupleItem);
 
         if (!tupleItem) {
             throw new BadRequestException("Invalid tuple item");

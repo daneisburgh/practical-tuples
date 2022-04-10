@@ -21,7 +21,6 @@ export class TuplesService {
             users: [user]
         });
         const tuple = await this.findOne(id);
-        console.log(tuple);
         await this.notifyConnections(tuple, { createTuple: tuple });
         return tuple;
     }
