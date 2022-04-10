@@ -19,11 +19,13 @@ functions:
                   method: ANY
                   path: "{proxy+}"
     websocket:
-        handler: dist/src/main.handleWebSocketConnection
+        handler: dist/src/main.handleWebSocketRequest
         events:
             - websocket:
                   route: $connect
             - websocket:
                   route: $disconnect
+            - websocket:
+                  route: connectionId
             - websocket:
                   route: ping

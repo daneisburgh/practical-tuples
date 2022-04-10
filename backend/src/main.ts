@@ -47,25 +47,22 @@ export const handleHttpRequest = async (event: any, context: Context, callback: 
     return server(event, context, callback);
 };
 
-type WebSocketEvent = {
+export const handleWebSocketRequest = async (event: {
     body?: string;
     requestContext: {
         connectionId: string;
         eventType: "CONNECT" | "DISCONNECT" | "MESSAGE";
     };
-};
-
-export const handleWebSocketConnection = async (event: WebSocketEvent) => {
-    app = app ?? (await bootstrap());
-
-    const connectionsService = app.get(ConnectionsService);
-
+}) => {
     const {
         body,
         requestContext: { connectionId, eventType }
     } = event;
 
     if (connectionId && eventType) {
+        app = app ?? (await bootstrap());
+        const connectionsService = app.get(ConnectionsService);
+
         switch (eventType) {
             case "CONNECT":
                 await connectionsService.create(connectionId);
@@ -74,11 +71,10 @@ export const handleWebSocketConnection = async (event: WebSocketEvent) => {
                 await connectionsService.delete(connectionId);
                 break;
             case "MESSAGE":
-                if (body) {
-                    await connectionsService.message(connectionId, body);
-                }
-
+                await connectionsService.message(connectionId, body);
                 break;
         }
     }
+
+    return { statusCode: 200 };
 };

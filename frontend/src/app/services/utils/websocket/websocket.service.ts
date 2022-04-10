@@ -60,6 +60,7 @@ export class WebSocketService {
     private onOpen() {
         console.log("CONNECTED");
         this.connectionEvent.emit("connected");
+        this.send("connectionId");
     }
 
     private async onClose() {
