@@ -7,11 +7,11 @@ jobs:
         name: Install Root
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: node_modules
                   key: ${{ hashFiles('package-lock.json') }}
@@ -22,11 +22,11 @@ jobs:
         name: Install Backend
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: backend/node_modules
                   key: ${{ hashFiles('backend/package-lock.json') }}
@@ -35,11 +35,11 @@ jobs:
         name: Install Frontend
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: frontend/node_modules
                   key: ${{ hashFiles('frontend/package-lock.json') }}
@@ -49,11 +49,11 @@ jobs:
         needs: install-root
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: node_modules
                   key: ${{ hashFiles('package-lock.json') }}
@@ -63,11 +63,11 @@ jobs:
         needs: install-backend
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: backend/node_modules
                   key: ${{ hashFiles('backend/package-lock.json') }}
@@ -77,11 +77,11 @@ jobs:
         needs: install-frontend
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: frontend/node_modules
                   key: ${{ hashFiles('frontend/package-lock.json') }}
@@ -91,11 +91,11 @@ jobs:
         needs: install-backend
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: backend/node_modules
                   key: ${{ hashFiles('backend/package-lock.json') }}
@@ -105,11 +105,11 @@ jobs:
         needs: install-frontend
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: frontend/node_modules
                   key: ${{ hashFiles('frontend/package-lock.json') }}
@@ -120,11 +120,11 @@ jobs:
         needs: [format, lint-backend, lint-frontend, test-backend, test-frontend]
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
-            - uses: actions/setup-node@v2
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
               with:
                   node-version: ${{ env.NODE_VERSION }}
-            - uses: actions/cache@v2
+            - uses: actions/cache@v3.0.1
               with:
                   path: node_modules
                   key: ${{ hashFiles('package-lock.json') }}
