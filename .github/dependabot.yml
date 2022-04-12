@@ -5,6 +5,8 @@ updates:
       directory: "/"
       schedule:
           interval: "daily"
+      commit-message:
+          prefix: "ci"
     - package-ecosystem: "npm"
       target-branch: "develop"
       directory: "/"
