@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { remove } from "lodash";
 
 import { TupleItem } from "../tuple-items/tuple-items.service";
 import { User, UsersService } from "../users/users.service";
@@ -29,9 +28,7 @@ export class TuplesService {
     constructor(private httpService: HttpService, private usersService: UsersService) {}
 
     async create() {
-        const tuple = (await this.httpService.post(route)) as Tuple;
-        this.usersService.user.tuples.unshift(tuple);
-        return tuple;
+        return await this.httpService.post(route);
     }
 
     async update(id: number, tuple: Partial<Tuple>) {
@@ -40,6 +37,5 @@ export class TuplesService {
 
     async delete(id: number) {
         await this.httpService.delete(`${route}/${id}`);
-        remove(this.usersService.user.tuples, (tuple) => tuple.id === id);
     }
 }

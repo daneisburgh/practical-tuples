@@ -16,6 +16,7 @@
         </ion-button>
         <ion-button
             *ngIf="requestId"
+            id="create-new-account"
             color="primary"
             [disabled]="isInputDisabled"
             (click)="confirmCreateNewAccount()"

@@ -27,6 +27,7 @@ export type User = {
 })
 export class UsersService {
     connectionEvent = new EventEmitter<void>();
+    changeEvent = new EventEmitter<"device" | "tuple" | "user">();
     user?: User;
 
     private unableToLogInToast: HTMLIonToastElement;
@@ -67,9 +68,7 @@ export class UsersService {
                     if (currentDeviceIndex === -1) {
                         this.user.devices.push(device);
                     } else {
-                        for (const deviceKey of Object.keys(device)) {
-                            this.user.devices[currentDeviceIndex][deviceKey] = device[deviceKey];
-                        }
+                        this.user.devices[currentDeviceIndex] = device;
                     }
                 } else if (device.id === currentDeviceId && device.isVerified) {
                     this.connect();
@@ -86,11 +85,13 @@ export class UsersService {
                     this.user.devices = this.user.devices.filter((d) => d.id !== deleteDevice.id);
                 }
             }
+
+            this.user.devices = orderBy(this.user.devices, "createdAt", "asc");
+            this.changeEvent.emit("device");
         });
 
         this.webSocketService.tupleEvent.subscribe((tupleEvent) => {
             const { createTuple, updateTuple, deleteTuple } = tupleEvent;
-            console.log(tupleEvent);
 
             if (createTuple) {
                 const tuple = this.httpService.mapDateValues(createTuple);
@@ -100,40 +101,16 @@ export class UsersService {
             } else if (updateTuple) {
                 const tuple = this.httpService.mapDateValues(updateTuple);
                 const currentTupleIndex = this.user.tuples.findIndex((t) => t.id === tuple.id);
-                const currentTuple = this.user.tuples[currentTupleIndex];
-
-                for (const tupleKey of Object.keys(tuple)) {
-                    if (tupleKey !== "tupleItems") {
-                        currentTuple[tupleKey] = tuple[tupleKey];
-                    } else {
-                        for (const [tupleItemIndex, tupleItem] of tuple.tupleItems.entries()) {
-                            const currentTupleItemIndex = currentTuple.tupleItems.findIndex(
-                                (ti) => ti.id === tupleItem.id
-                            );
-
-                            if (currentTupleItemIndex === -1) {
-                                this.user.tuples[currentTupleIndex].tupleItems.splice(
-                                    tupleItem.order,
-                                    0,
-                                    tupleItem
-                                );
-                            } else if (tupleItemIndex !== currentTupleItemIndex) {
-                                this.user.tuples[currentTupleIndex].tupleItems[tupleItemIndex] =
-                                    tupleItem;
-                            } else {
-                                const currentTupleItem =
-                                    this.user.tuples[currentTupleIndex].tupleItems[
-                                        currentTupleItemIndex
-                                    ];
-
-                                for (const tupleItemKey of Object.keys(tupleItem)) {
-                                    currentTupleItem[tupleItemKey] = tupleItem[tupleItemKey];
-                                }
-                            }
-                        }
-                    }
-                }
+                this.user.tuples[currentTupleIndex] = tuple;
             }
+
+            this.user.tuples = orderBy(this.user.tuples, "createdAt", "desc");
+
+            for (const tuple of this.user.tuples) {
+                tuple.tupleItems = orderBy(tuple.tupleItems, "order", "asc");
+            }
+
+            this.changeEvent.emit("tuple");
         });
 
         this.webSocketService.userEvent.subscribe((userEvent) => {
@@ -141,13 +118,13 @@ export class UsersService {
 
             if (updateUser) {
                 const user = this.httpService.mapDateValues(updateUser);
-
-                for (const userKey of Object.keys(user)) {
-                    this.user[userKey] = user[userKey];
-                }
+                this.setUser(user);
             } else if (deleteUser) {
                 this.logout();
             }
+
+            this.user = Object.assign({}, this.user);
+            this.changeEvent.emit("user");
         });
     }
 
@@ -189,14 +166,14 @@ export class UsersService {
         await this.logout();
     }
 
-    async update(user: Partial<User>) {
-        await this.httpService.patch(route, user);
-    }
-
-    private async logout() {
+    async logout() {
         await this.storageService.remove(StorageKey.requestId);
         this.user = undefined;
         this.router.navigateByUrl("/");
+    }
+
+    async update(user: Partial<User>) {
+        await this.httpService.patch(route, user);
     }
 
     private setUser(user: User) {

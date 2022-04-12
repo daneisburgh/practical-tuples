@@ -3,9 +3,9 @@ import { Title } from "@angular/platform-browser";
 import { NavigationStart, Router } from "@angular/router";
 import { Platform } from "@ionic/angular";
 
-import { UsersService } from "./services/resources/users/users.service";
-import { ToastService } from "./services/utils/toast/toast.service";
-import { WebSocketService } from "./services/utils/websocket/websocket.service";
+import { UsersService } from "./shared/services/resources/users/users.service";
+import { ToastService } from "./shared/services/utils/toast/toast.service";
+import { WebSocketService } from "./shared/services/utils/websocket/websocket.service";
 
 type RouteInfo = {
     url: string;

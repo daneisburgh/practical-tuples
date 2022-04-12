@@ -3,11 +3,15 @@ import { Router } from "@angular/router";
 import { AlertController, IonModal } from "@ionic/angular";
 
 import { AppComponent } from "../../app.component";
-import { DevicesService } from "../../services/resources/devices/devices.service";
-import { Tuple, TuplesService, TupleType } from "../../services/resources/tuples/tuples.service";
-import { UsersService } from "../../services/resources/users/users.service";
-import { StorageKey, StorageService } from "../../services/utils/storage/storage.service";
-import { ToastService } from "../../services/utils/toast/toast.service";
+import { DevicesService } from "../../shared/services/resources/devices/devices.service";
+import {
+    Tuple,
+    TuplesService,
+    TupleType
+} from "../../shared/services/resources/tuples/tuples.service";
+import { UsersService } from "../../shared/services/resources/users/users.service";
+import { StorageKey, StorageService } from "../../shared/services/utils/storage/storage.service";
+import { ToastService } from "../../shared/services/utils/toast/toast.service";
 
 @Component({
     selector: "app-home",
@@ -111,7 +115,8 @@ export class HomePage implements OnInit {
     async confirmCreateNewAccount() {
         (
             await this.alertController.create({
-                message: "Please confirm new account creation. This action is irreversible.",
+                message:
+                    "Please confirm new account creation. This action will remove all of the account data from this device and is irreversible.",
                 buttons: [
                     {
                         text: "Confirm",

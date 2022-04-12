@@ -8,7 +8,7 @@ import { IonicStorageModule } from "@ionic/storage-angular";
 
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
-import { FooterComponent } from "./components/footer/footer.component";
+import { FooterComponent } from "./shared/components/footer/footer.component";
 import { ErrorPage } from "./pages/error/error.page";
 import { HomePage } from "./pages/home/home.page";
 import { TuplePage } from "./pages/tuple/tuple.page";

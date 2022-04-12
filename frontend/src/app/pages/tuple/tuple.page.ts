@@ -11,13 +11,17 @@ import { AlertController, Platform } from "@ionic/angular";
 import { remove, toInteger } from "lodash";
 
 import { AppComponent } from "../../app.component";
-import { ToastService } from "../../services/utils/toast/toast.service";
-import { Tuple, TuplesService, TupleType } from "../../services/resources/tuples/tuples.service";
+import { ToastService } from "../../shared/services/utils/toast/toast.service";
+import {
+    Tuple,
+    TuplesService,
+    TupleType
+} from "../../shared/services/resources/tuples/tuples.service";
 import {
     TupleItem,
     TupleItemsService
-} from "../../services/resources/tuple-items/tuple-items.service";
-import { UsersService } from "../../services/resources/users/users.service";
+} from "../../shared/services/resources/tuple-items/tuple-items.service";
+import { UsersService } from "../../shared/services/resources/users/users.service";
 
 @Component({
     selector: "app-tuple",
@@ -38,6 +42,7 @@ export class TuplePage implements OnInit, AfterViewInit {
     showTupleNameInput = false;
     showTupleItemValueInputId = -1;
     tuple: Tuple;
+    tupleName: string;
     tupleNameInput: string;
     tupleItemValueInput: string;
     updatingTupleItemId = -1;
@@ -109,15 +114,23 @@ export class TuplePage implements OnInit, AfterViewInit {
     }
 
     ngAfterViewInit() {
-        if (!this.tuple && this.tupleId && this.user) {
-            const tuple = this.user.tuples.find((t) => t.id === this.tupleId);
+        this.setTuple();
 
-            if (tuple) {
-                this.tuple = tuple;
-            } else {
-                this.router.navigateByUrl("/error", { skipLocationChange: true });
-            }
+        if (!this.tuple) {
+            this.router.navigateByUrl("/error", { skipLocationChange: true });
         }
+
+        this.usersService.changeEvent.subscribe(() => {
+            this.setTuple();
+
+            if (this.tuple) {
+                this.router.navigateByUrl("/");
+                this.toastService.present(
+                    "danger",
+                    `Tuple '${this.tupleName}' was deleted by another device`
+                );
+            }
+        });
     }
 
     async createTupleItem(afterTupleItem?: TupleItem) {
@@ -212,8 +225,8 @@ export class TuplePage implements OnInit, AfterViewInit {
         this.isUpdatingTupleItemOrder = true;
         const tupleItems = event.detail.complete(this.tuple.tupleItems);
 
-        for (let i = 0; i < tupleItems.length; i++) {
-            tupleItems[i] = { id: tupleItems[i].id, order: i };
+        for (const [tupleItemIndex, tupleItem] of tupleItems.entries()) {
+            tupleItems[tupleItemIndex] = { id: tupleItem.id, order: tupleItemIndex };
         }
 
         try {
@@ -332,5 +345,16 @@ export class TuplePage implements OnInit, AfterViewInit {
                 this.inputElement.nativeElement.focus();
             }
         }, 250);
+    }
+
+    private setTuple() {
+        if (this.user) {
+            const tuple = this.user.tuples.find((t) => t.id === this.tupleId);
+
+            if (tuple) {
+                this.tuple = tuple;
+                this.tupleName = tuple.name;
+            }
+        }
     }
 }

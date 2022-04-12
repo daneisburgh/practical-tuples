@@ -4,7 +4,7 @@ import { cloneDeepWith, isObject, isString } from "lodash";
 
 import { StorageService, StorageKey } from "../storage/storage.service";
 import { WebSocketService } from "../websocket/websocket.service";
-import { environment } from "../../../../environments/environment";
+import { environment } from "../../../../../environments/environment";
 
 const { httpUrl } = environment;
 const logRequest = "REQUEST";

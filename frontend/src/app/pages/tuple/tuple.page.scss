@@ -12,6 +12,10 @@ input {
             margin: 0 12px 0 8px;
         }
 
+        ion-label {
+            z-index: 1000;
+        }
+
         ion-reorder {
             margin: 0 8px 0 -8px;
             display: block !important;

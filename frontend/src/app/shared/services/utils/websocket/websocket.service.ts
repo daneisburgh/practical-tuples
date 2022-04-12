@@ -3,7 +3,7 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { Device } from "../../resources/devices/devices.service";
 import { Tuple } from "../../resources/tuples/tuples.service";
-import { environment } from "../../../../environments/environment";
+import { environment } from "../../../../../environments/environment";
 import { User } from "../../resources/users/users.service";
 
 type ReceivedBody = {
@@ -70,7 +70,7 @@ export class WebSocketService {
     }
 
     private async receive(body: ReceivedBody) {
-        console.log("RECEIVED", body);
+        console.log("RECEIVE", body);
         const { action, connectionId, device, message, tuple, user } = body;
 
         if (action) {
@@ -98,7 +98,7 @@ export class WebSocketService {
 
     private send(action: string) {
         const body = { action };
-        console.log("SENT", body);
+        console.log("SEND", body);
         this.subject.next(body);
     }
 }
