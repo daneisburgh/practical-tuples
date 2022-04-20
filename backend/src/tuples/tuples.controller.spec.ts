@@ -8,6 +8,7 @@ import { Tuple } from "./entities/tuple.entity";
 import { ConnectionsService } from "../connections/connections.service";
 import { Connection } from "../connections/entities/connection.entity";
 import { Device } from "../devices/entities/device.entity";
+import { TupleItem } from "../tuple-items/entities/tuple-item.entity";
 import { UsersService } from "../users/users.service";
 import { User } from "../users/entities/user.entity";
 import { UserGuard } from "../users/guards/user.guard";
@@ -33,6 +34,10 @@ describe("TuplesController", () => {
                 },
                 {
                     provide: getRepositoryToken(Tuple),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(TupleItem),
                     useClass: Repository
                 },
                 {

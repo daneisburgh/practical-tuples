@@ -7,6 +7,7 @@ import { Tuple } from "./entities/tuple.entity";
 import { ConnectionsService } from "../connections/connections.service";
 import { Connection } from "../connections/entities/connection.entity";
 import { Device } from "../devices/entities/device.entity";
+import { TupleItem } from "../tuple-items/entities/tuple-item.entity";
 
 describe("TuplesService", () => {
     let service: TuplesService;
@@ -26,6 +27,10 @@ describe("TuplesService", () => {
                 },
                 {
                     provide: getRepositoryToken(Tuple),
+                    useClass: Repository
+                },
+                {
+                    provide: getRepositoryToken(TupleItem),
                     useClass: Repository
                 }
             ]
