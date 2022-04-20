@@ -3,9 +3,9 @@ import { Title } from "@angular/platform-browser";
 import { NavigationStart, Router } from "@angular/router";
 import { Platform } from "@ionic/angular";
 
-import { UsersService } from "./shared/services/resources/users/users.service";
-import { ToastService } from "./shared/services/utils/toast/toast.service";
-import { WebSocketService } from "./shared/services/utils/websocket/websocket.service";
+import { UsersService } from "./services/resources/users/users.service";
+import { ToastService } from "./services/utils/toast/toast.service";
+import { WebSocketService } from "./services/utils/websocket/websocket.service";
 
 type RouteInfo = {
     url: string;
@@ -19,21 +19,21 @@ type RouteInfo = {
     styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit {
+    static connectionStatus: "Connecting" | "Connected" | "Disconnected" = "Connecting";
     static isCreatingAccount = false;
     static platformWidth = 0;
     static showProgressBar = false;
+    static unableToConnectToast: HTMLIonToastElement;
     static readonly smallScreenWidth = 480;
 
-    isConnecting = false;
-    isLoading = true;
-    isReady = false;
+    readonly currentYear = new Date().getFullYear();
+
     routeUrl = "/";
     routeUrlPrevious = this.routeUrl;
     routes: RouteInfo[] = [
         { url: "/", label: "Home", icon: "home" },
         { url: "/account", label: "Account", icon: "person" }
     ];
-    unableToConnectToast: HTMLIonToastElement;
 
     constructor(
         private platform: Platform,
@@ -48,6 +48,21 @@ export class AppComponent implements OnInit {
         return this.platformWidth < this.smallScreenWidth;
     }
 
+    get connectionStatus() {
+        return AppComponent.connectionStatus;
+    }
+
+    get connectionStatusColor() {
+        switch (this.connectionStatus) {
+            case "Connecting":
+                return "dark";
+            case "Connected":
+                return "success";
+            case "Disconnected":
+                return "danger";
+        }
+    }
+
     get displayMenu() {
         return this.user && this.isSmallScreen && !this.isCreatingAccount;
     }
@@ -56,6 +71,10 @@ export class AppComponent implements OnInit {
         return (
             this.displayMenu && this.routes.filter((route) => this.displayBadge(route)).length > 0
         );
+    }
+
+    get isConnecting() {
+        return AppComponent.connectionStatus === "Connecting";
     }
 
     get isCreatingAccount() {
@@ -87,57 +106,55 @@ export class AppComponent implements OnInit {
 
     ngOnInit() {
         this.resizeEvent();
+        this.webSocketService.connect();
 
-        this.router.events.subscribe((event) => {
+        this.router.events.subscribe(async (event) => {
             if (event instanceof NavigationStart) {
-                this.routeUrl = event.url;
-
-                if (!this.isLoading) {
-                    this.setRouteTitle();
+                if (!this.user) {
+                    await this.usersService.setUser();
                 }
+
+                this.routeUrl = event.url;
+                this.setRouteTitle();
             }
         });
 
         this.usersService.connectionEvent.subscribe(() => {
-            if (!this.user && this.routeUrl !== "/" && !this.routeUrl.includes("error")) {
-                const code =
-                    this.routeUrl === "/account" || this.routeUrl.startsWith("/tuple") ? 401 : 404;
-                this.router.navigate(["/error"], {
-                    skipLocationChange: true,
-                    queryParams: { code }
-                });
-            }
-
-            this.isConnecting = false;
-            this.isReady = true;
-            this.removeLoadingElement();
+            AppComponent.connectionStatus = "Connected";
+            AppComponent.showProgressBar = false;
         });
 
         this.webSocketService.connectionEvent.subscribe(async (event) => {
             if (event === "disconnected") {
-                if (!this.isLoading && this.isConnecting) {
-                    this.unableToConnectToast = await this.toastService.present(
-                        "danger",
-                        "Unable to connect"
-                    );
+                switch (AppComponent.connectionStatus) {
+                    case "Connecting":
+                        AppComponent.showProgressBar = false;
+                        AppComponent.unableToConnectToast = await this.toastService.present(
+                            "danger",
+                            "Unable to connect"
+                        );
+                        break;
+                    case "Connected":
+                        AppComponent.unableToConnectToast = await this.toastService.present(
+                            "danger",
+                            "You have lost connection. Please reconnect to continue."
+                        );
+                        break;
                 }
 
-                this.isConnecting = false;
-                this.isReady = false;
-                this.removeLoadingElement();
+                AppComponent.connectionStatus = "Disconnected";
             }
         });
     }
 
     async connect() {
-        if (this.unableToConnectToast) {
-            this.unableToConnectToast.dismiss();
-        }
-
-        AppComponent.showProgressBar = true;
-        this.isConnecting = true;
-        this.isReady = false;
         this.webSocketService.connect();
+        AppComponent.connectionStatus = "Connecting";
+        AppComponent.showProgressBar = true;
+
+        if (AppComponent.unableToConnectToast) {
+            AppComponent.unableToConnectToast.dismiss();
+        }
     }
 
     displayBadge(route: RouteInfo) {
@@ -150,22 +167,23 @@ export class AppComponent implements OnInit {
         return route === this.routeUrl;
     }
 
-    private removeLoadingElement() {
-        if (!this.isLoading) {
-            this.setRouteTitle();
-        }
-
-        this.isLoading = false;
-    }
-
     private setRouteTitle() {
-        let routeTitle: string;
+        if (!this.user && this.routeUrl !== "/" && !this.routeUrl.includes("error")) {
+            const code =
+                this.routeUrl === "/account" || this.routeUrl.startsWith("/tuple") ? 401 : 404;
+            this.router.navigate(["/error"], {
+                skipLocationChange: true,
+                queryParams: { code }
+            });
+        } else {
+            let routeTitle: string;
 
-        if (this.routeUrl === "/account") {
-            routeTitle = "Account";
+            if (this.routeUrl === "/account") {
+                routeTitle = "Account";
+            }
+
+            this.title.setTitle("Practical Tuples" + (routeTitle ? ` | ${routeTitle}` : ""));
+            AppComponent.showProgressBar = false;
         }
-
-        this.title.setTitle("Practical Tuples" + (routeTitle ? ` | ${routeTitle}` : ""));
-        AppComponent.showProgressBar = false;
     }
 }

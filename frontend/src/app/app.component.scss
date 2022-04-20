@@ -1,17 +1,70 @@
-ion-header {
-    ion-toolbar {
-        padding: 0 0 0 8px;
+ion-header ion-toolbar {
+    padding: 0 4px 0 8px;
 
-        @media screen and (min-width: 768px) {
-            padding: 0;
+    @media screen and (min-width: 768px) {
+        padding: 0;
+    }
+
+    ion-img {
+        $img-size: 40px;
+        height: $img-size;
+        width: $img-size;
+    }
+
+    ion-menu-button {
+        font-size: 32px;
+    }
+
+    ion-title {
+        padding-left: 8px;
+    }
+}
+
+ion-footer ion-toolbar {
+    padding: 0 8px 0 4px;
+
+    ion-grid {
+        padding: 0;
+
+        .col-status {
+            margin-bottom: -6px;
+
+            @media screen and (min-width: 576px) {
+                margin-bottom: 0;
+            }
         }
 
-        ion-menu-button {
-            font-size: 32px;
+        .connect-button {
+            height: 20px;
+            margin: -14px 0 0 0;
+            --padding-start: 4px;
+            --padding-end: 4px;
         }
 
-        ion-title {
-            padding-left: 8px;
+        .connecting::after {
+            width: 14px;
+            text-align: left;
+            display: inline-block;
+            animation: dotty steps(1, end) 2s infinite;
+            content: "";
+        }
+
+        @keyframes dotty {
+            0% {
+                content: "";
+            }
+            25% {
+                content: ".";
+            }
+            50% {
+                content: "..";
+            }
+            75% {
+                content: "...";
+            }
+            100% {
+                content: "";
+            }
         }
     }
 }
