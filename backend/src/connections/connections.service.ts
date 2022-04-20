@@ -47,9 +47,11 @@ export class ConnectionsService {
 
     async postToConnection(id: string, data: object) {
         try {
-            await this.apig
-                .postToConnection({ ConnectionId: id, Data: JSON.stringify(data) })
-                .promise();
+            if (id) {
+                await this.apig
+                    .postToConnection({ ConnectionId: id, Data: JSON.stringify(data) })
+                    .promise();
+            }
         } catch (error) {
             console.error(error);
             await this.delete(id);

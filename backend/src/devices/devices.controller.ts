@@ -26,22 +26,26 @@ export class DevicesController {
     @Post()
     @UseGuards(ConnectionGuard)
     create(
+        @Body() createDeviceDto: CreateDeviceDto,
         @Headers("connection-id") connectionId: string,
-        @Headers("device-id") deviceId: string,
-        @Body() createDeviceDto: CreateDeviceDto
+        @Headers("device-id") deviceId: string
     ) {
-        return this.devicesService.create(connectionId, deviceId, createDeviceDto);
+        return this.devicesService.create(createDeviceDto, connectionId, deviceId);
     }
 
     @Delete(":id")
     @UseGuards(UserGuard)
-    delete(@Param("id") id: string) {
-        return this.devicesService.delete(id);
+    delete(@Param("id") id: string, @Headers("connection-id") connectionId: string) {
+        return this.devicesService.delete(id, connectionId);
     }
 
     @Patch(":id")
     @UseGuards(UserGuard, DeviceUserGuard)
-    update(@Param("id") id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
-        return this.devicesService.update(id, updateDeviceDto);
+    update(
+        @Param("id") id: string,
+        @Body() updateDeviceDto: UpdateDeviceDto,
+        @Headers("connection-id") connectionId: string
+    ) {
+        return this.devicesService.update(id, updateDeviceDto, connectionId);
     }
 }

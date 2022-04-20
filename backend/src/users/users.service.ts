@@ -34,7 +34,7 @@ export class UsersService {
         });
     }
 
-    async create(connectionId: string, deviceId: string, createUserDto: CreateUserDto) {
+    async create(createUserDto: CreateUserDto, connectionId: string, deviceId: string) {
         const device = Object.assign(new Device(), {
             id: deviceId,
             isVerified: true,
@@ -51,18 +51,18 @@ export class UsersService {
         return { ...user, requestId: this.getRequestId(user) };
     }
 
-    async delete(user: User) {
+    async delete(user: User, connectionId: string) {
         for (const tuple of user.tuples) {
             if (tuple.users.length === 1) {
                 await this.tuplesRepository.delete(tuple.id);
             }
         }
 
-        await this.notifyConnections(user, { deleteUser: user });
+        await this.notifyConnections(user, connectionId, { deleteUser: user });
         await this.usersRepository.delete(user.id);
     }
 
-    async update(id: number, updateUserDto: UpdateUserDto) {
+    async update(id: number, updateUserDto: UpdateUserDto, connectionId: string) {
         const { username } = updateUserDto;
 
         if (username) {
@@ -77,7 +77,7 @@ export class UsersService {
 
         await this.usersRepository.update(id, updateUserDto);
         const user = await this.findOne({ id });
-        await this.notifyConnections(user, { updateUser: user });
+        await this.notifyConnections(user, connectionId, { updateUser: user });
         return user;
     }
 
@@ -94,9 +94,11 @@ export class UsersService {
         return AES.encrypt(user.id.toString(), process.env.API_KEY).toString();
     }
 
-    private async notifyConnections(user: User, data: object) {
-        for (const connectionId of user.devices.map((d) => d.connectionId)) {
-            await this.connectionsService.postToConnection(connectionId, { user: data });
+    private async notifyConnections(user: User, connectionId: string, data: object) {
+        for (const id of user.devices
+            .filter((d) => d.connectionId !== connectionId && d.isVerified)
+            .map((d) => d.connectionId)) {
+            await this.connectionsService.postToConnection(id, { user: data });
         }
     }
 }

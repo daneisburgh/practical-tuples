@@ -15,32 +15,27 @@ export class TupleItemsService {
         private tuplesService: TuplesService
     ) {}
 
-    async batchUpdate(tupleId: number, tupleItems: Partial<TupleItem>[]) {
-        await this.tupleItemsRepository.save(tupleItems);
-        await this.tuplesService.update(tupleId, {});
-    }
-
-    async create(createTupleItemDto: CreateTupleItemDto) {
+    async create(createTupleItemDto: CreateTupleItemDto, connectionId: string) {
         const tupleItem = Object.assign(new TupleItem(), createTupleItemDto);
         const { id, tupleId } = await this.tupleItemsRepository.save(tupleItem);
-        await this.tuplesService.update(tupleId, {});
+        await this.tuplesService.update(tupleId, {}, connectionId);
         return this.findOne(id);
     }
 
-    async delete(id: number) {
+    async delete(id: number, connectionId: string) {
         const tupleItem = await this.findOne(id);
         await this.tupleItemsRepository.delete(id);
-        await this.tuplesService.update(tupleItem.tupleId, {});
+        await this.tuplesService.update(tupleItem.tupleId, {}, connectionId);
     }
 
     findOne(id: number) {
         return this.tupleItemsRepository.findOne(id);
     }
 
-    async update(id: number, updateTupleItemDto: UpdateTupleItemDto) {
+    async update(id: number, updateTupleItemDto: UpdateTupleItemDto, connectionId: string) {
         await this.tupleItemsRepository.update(id, updateTupleItemDto);
         const tupleItem = await this.findOne(id);
-        await this.tuplesService.update(tupleItem.tupleId, {});
+        await this.tuplesService.update(tupleItem.tupleId, {}, connectionId);
         return tupleItem;
     }
 }

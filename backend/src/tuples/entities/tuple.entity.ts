@@ -1,4 +1,5 @@
-import { IsEnum, IsString, MaxLength } from "class-validator";
+import { Type } from "class-transformer";
+import { IsArray, IsEnum, IsString, MaxLength, ValidateNested } from "class-validator";
 import {
     Column,
     CreateDateColumn,
@@ -41,5 +42,8 @@ export class Tuple {
     users: User[];
 
     @OneToMany(() => TupleItem, (tupleItem) => tupleItem.tuple)
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => TupleItem)
     tupleItems: TupleItem[];
 }

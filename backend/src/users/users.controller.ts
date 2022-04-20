@@ -26,23 +26,27 @@ export class UsersController {
     @Post()
     @UseGuards(ConnectionGuard)
     create(
+        @Body() createUserDto: CreateUserDto,
         @Headers("connection-id") connectionId: string,
-        @Headers("device-id") deviceId: string,
-        @Body() createUserDto: CreateUserDto
+        @Headers("device-id") deviceId: string
     ) {
-        return this.usersService.create(connectionId, deviceId, createUserDto);
+        return this.usersService.create(createUserDto, connectionId, deviceId);
     }
 
     @Delete()
     @UseGuards(UserGuard)
-    delete(@Req() request) {
-        return this.usersService.delete(request.user);
+    delete(@Req() request, @Headers("connection-id") connectionId: string) {
+        return this.usersService.delete(request.user, connectionId);
     }
 
     @Patch()
     @UseGuards(UserGuard)
-    update(@Req() request, @Body() updateUserDto: UpdateUserDto) {
-        return this.usersService.update(request.user.id, updateUserDto);
+    update(
+        @Req() request,
+        @Body() updateUserDto: UpdateUserDto,
+        @Headers("connection-id") connectionId: string
+    ) {
+        return this.usersService.update(request.user.id, updateUserDto, connectionId);
     }
 
     @Patch("connect")

@@ -1,9 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
+import {
+    Controller,
+    Get,
+    Headers,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    UseGuards
+} from "@nestjs/common";
 
 import { TupleItemsService } from "./tuple-items.service";
 import { CreateTupleItemDto } from "./dto/create-tuple-item.dto";
 import { UpdateTupleItemDto } from "./dto/update-tuple-item.dto";
-import { UpdateTupleItemsDto } from "./dto/update-tuple-items.dto";
 import { TupleItemUserGuard } from "./guards/tuple-item-user.guard";
 import { TupleUserGuard } from "./guards/tuple-user.guard";
 import { UserGuard } from "../users/guards/user.guard";
@@ -14,8 +23,11 @@ export class TupleItemsController {
 
     @Post()
     @UseGuards(UserGuard, TupleUserGuard)
-    create(@Body() createTupleItemDto: CreateTupleItemDto) {
-        return this.tupleItemsService.create(createTupleItemDto);
+    create(
+        @Body() createTupleItemDto: CreateTupleItemDto,
+        @Headers("connection-id") connectionId: string
+    ) {
+        return this.tupleItemsService.create(createTupleItemDto, connectionId);
     }
 
     @Get(":id")
@@ -26,20 +38,17 @@ export class TupleItemsController {
 
     @Patch(":id")
     @UseGuards(UserGuard, TupleItemUserGuard)
-    update(@Param("id") id: string, @Body() updateTupleItemDto: UpdateTupleItemDto) {
-        return this.tupleItemsService.update(+id, updateTupleItemDto);
-    }
-
-    @Patch()
-    @UseGuards(UserGuard, TupleUserGuard)
-    batchUpdate(@Body() updateTupleItemsDto: UpdateTupleItemsDto) {
-        const { tupleId, tupleItems } = updateTupleItemsDto;
-        return this.tupleItemsService.batchUpdate(tupleId, tupleItems);
+    update(
+        @Param("id") id: string,
+        @Body() updateTupleItemDto: UpdateTupleItemDto,
+        @Headers("connection-id") connectionId: string
+    ) {
+        return this.tupleItemsService.update(+id, updateTupleItemDto, connectionId);
     }
 
     @Delete(":id")
     @UseGuards(UserGuard, TupleItemUserGuard)
-    delete(@Param("id") id: string) {
-        return this.tupleItemsService.delete(+id);
+    delete(@Param("id") id: string, @Headers("connection-id") connectionId: string) {
+        return this.tupleItemsService.delete(+id, connectionId);
     }
 }

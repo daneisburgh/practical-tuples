@@ -48,6 +48,6 @@ export class User {
 
     @AfterLoad()
     setVariables() {
-        this.isOnline = this.devices && !!this.devices.find((device) => device.connection);
+        this.isOnline = this.devices && !!this.devices.find((device) => device.connectionId);
     }
 }
