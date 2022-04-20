@@ -8,14 +8,13 @@ import { IonicStorageModule } from "@ionic/storage-angular";
 
 import { AppComponent } from "./app.component";
 import { AppRoutingModule } from "./app-routing.module";
-import { FooterComponent } from "./shared/components/footer/footer.component";
 import { ErrorPage } from "./pages/error/error.page";
 import { HomePage } from "./pages/home/home.page";
 import { TuplePage } from "./pages/tuple/tuple.page";
 import { AccountPage } from "./pages/account/account.page";
 
 @NgModule({
-    declarations: [AppComponent, ErrorPage, FooterComponent, HomePage, AccountPage, TuplePage],
+    declarations: [AppComponent, ErrorPage, HomePage, AccountPage, TuplePage],
     entryComponents: [],
     imports: [
         CommonModule,

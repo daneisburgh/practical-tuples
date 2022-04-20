@@ -1,9 +1,6 @@
-<ion-app *ngIf="isLoading" id="loading" class="ion-justify-content-center ion-align-items-center">
-    <ion-spinner name="lines"></ion-spinner>
-</ion-app>
-<ion-app *ngIf="!isLoading">
+<ion-app>
     <ion-header>
-        <ion-toolbar class="toolbar-header-footer">
+        <ion-toolbar>
             <ion-menu-button *ngIf="displayMenu" slot="end"> </ion-menu-button>
             <span *ngIf="displayMenuBadge" class="badge menu-badge"></span>
             <ion-img slot="start" src="svg/flat-color-icons/todo_list.svg"></ion-img>
@@ -45,15 +42,35 @@
     </ion-menu>
     <ion-content id="main-content">
         <ion-progress-bar *ngIf="showProgressBar" type="indeterminate"></ion-progress-bar>
-        <ion-router-outlet *ngIf="isReady" [animated]="false"></ion-router-outlet>
-        <div *ngIf="!isReady" id="disconnected" class="page-content">
-            <div class="page ion-justify-content-center ion-align-items-center ion-text-center">
-                You are not connected.<br />Please connect to continue.
-                <ion-button class="ion-margin-top" [disabled]="isConnecting" (click)="connect()">
-                    Connect
-                </ion-button>
-            </div>
-            <app-footer></app-footer>
-        </div>
+        <ion-router-outlet [animated]="false"></ion-router-outlet>
     </ion-content>
+    <ion-footer>
+        <ion-toolbar>
+            <ion-grid>
+                <ion-row class="ion-align-items-center">
+                    <ion-col size="12" size-sm class="ion-text-center ion-text-sm-start col-status">
+                        <span [ngClass]="{ connecting: connectionStatus === 'Connecting' }"
+                            >Status:
+                            <ion-text [color]="connectionStatusColor">{{
+                                connectionStatus
+                            }}</ion-text></span
+                        >
+                        <ion-button
+                            *ngIf="connectionStatus === 'Disconnected'"
+                            class="icon-button connect-button"
+                            color="dark"
+                            fill="clear"
+                            (click)="connect()"
+                        >
+                            <ion-icon slot="icon-only" name="refresh"></ion-icon>
+                        </ion-button>
+                    </ion-col>
+                    <ion-col class="ion-text-center ion-text-sm-end">
+                        &copy; Copyright {{ currentYear }}
+                        <a href="https://www.daneisburgh.com/" target="_blank">Dane Isburgh</a>
+                    </ion-col>
+                </ion-row>
+            </ion-grid>
+        </ion-toolbar>
+    </ion-footer>
 </ion-app>
