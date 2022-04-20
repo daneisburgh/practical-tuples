@@ -4,17 +4,13 @@ import { AlertController, Platform } from "@ionic/angular";
 import { merge, orderBy, toInteger } from "lodash";
 import { Subscription } from "rxjs";
 
-import { ToastService } from "../../shared/services/utils/toast/toast.service";
-import {
-    Tuple,
-    TuplesService,
-    TupleType
-} from "../../shared/services/resources/tuples/tuples.service";
+import { ToastService } from "../../services/utils/toast/toast.service";
+import { Tuple, TuplesService, TupleType } from "../../services/resources/tuples/tuples.service";
 import {
     TupleItem,
     TupleItemsService
-} from "../../shared/services/resources/tuple-items/tuple-items.service";
-import { UsersService } from "../../shared/services/resources/users/users.service";
+} from "../../services/resources/tuple-items/tuple-items.service";
+import { UsersService } from "../../services/resources/users/users.service";
 import { AppComponent } from "src/app/app.component";
 
 @Component({

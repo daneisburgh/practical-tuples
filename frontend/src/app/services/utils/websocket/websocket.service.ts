@@ -3,7 +3,7 @@ import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { Device } from "../../resources/devices/devices.service";
 import { Tuple } from "../../resources/tuples/tuples.service";
-import { environment } from "../../../../../environments/environment";
+import { environment } from "../../../../environments/environment";
 import { User } from "../../resources/users/users.service";
 
 type ReceivedBody = {

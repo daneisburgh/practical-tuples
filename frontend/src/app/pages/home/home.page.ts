@@ -2,13 +2,9 @@ import { Component, HostListener, ViewChild } from "@angular/core";
 import { AlertController, IonModal } from "@ionic/angular";
 
 import { AppComponent } from "../../app.component";
-import { DevicesService } from "../../shared/services/resources/devices/devices.service";
-import {
-    Tuple,
-    TuplesService,
-    TupleType
-} from "../../shared/services/resources/tuples/tuples.service";
-import { UsersService } from "../../shared/services/resources/users/users.service";
+import { DevicesService } from "../../services/resources/devices/devices.service";
+import { Tuple, TuplesService, TupleType } from "../../services/resources/tuples/tuples.service";
+import { UsersService } from "../../services/resources/users/users.service";
 
 @Component({
     selector: "app-home",

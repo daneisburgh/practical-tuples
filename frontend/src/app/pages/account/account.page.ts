@@ -4,10 +4,10 @@ import { upperFirst } from "lodash";
 import { Subscription } from "rxjs";
 
 import { AppComponent } from "../../app.component";
-import { DevicesService } from "../../shared/services/resources/devices/devices.service";
-import { UsersService } from "../../shared/services/resources/users/users.service";
-import { StorageKey, StorageService } from "../../shared/services/utils/storage/storage.service";
-import { ToastService } from "../../shared/services/utils/toast/toast.service";
+import { DevicesService } from "../../services/resources/devices/devices.service";
+import { UsersService } from "../../services/resources/users/users.service";
+import { StorageKey, StorageService } from "../../services/utils/storage/storage.service";
+import { ToastService } from "../../services/utils/toast/toast.service";
 
 @Component({
     selector: "app-account",

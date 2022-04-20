@@ -5,8 +5,8 @@ import { cloneDeepWith, isObject, isString } from "lodash";
 import { StorageService, StorageKey } from "../storage/storage.service";
 import { ToastService } from "../toast/toast.service";
 import { WebSocketService } from "../websocket/websocket.service";
-import { environment } from "../../../../../environments/environment";
-import { AppComponent } from "../../../../app.component";
+import { environment } from "../../../../environments/environment";
+import { AppComponent } from "../../../app.component";
 
 const { httpUrl } = environment;
 const logRequest = "REQUEST";

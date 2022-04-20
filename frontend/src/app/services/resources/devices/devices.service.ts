@@ -7,7 +7,7 @@ import { StorageKey, StorageService } from "../../utils/storage/storage.service"
 import { ToastService } from "../../utils/toast/toast.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
 import { UsersService } from "../users/users.service";
-import { AppComponent } from "../../../../app.component";
+import { AppComponent } from "../../../app.component";
 
 const route = "/devices";
 

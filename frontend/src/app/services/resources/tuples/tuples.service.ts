@@ -7,7 +7,7 @@ import { User, UsersService } from "../users/users.service";
 import { HttpService } from "../../utils/http/http.service";
 import { ToastService } from "../../utils/toast/toast.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
-import { AppComponent } from "../../../../app.component";
+import { AppComponent } from "../../../app.component";
 
 const route = "/tuples";
 
