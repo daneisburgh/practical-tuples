@@ -3,17 +3,19 @@ import { Injectable } from "@angular/core";
 import { cloneDeepWith, isObject, isString } from "lodash";
 
 import { StorageService, StorageKey } from "../storage/storage.service";
+import { ToastService } from "../toast/toast.service";
 import { WebSocketService } from "../websocket/websocket.service";
 import { environment } from "../../../../../environments/environment";
+import { AppComponent } from "../../../../app.component";
 
 const { httpUrl } = environment;
 const logRequest = "REQUEST";
 const logResponse = "RESPONSE";
 
 enum RequestType {
-    delete = "DELETE",
-    patch = "PATCH",
-    post = "POST"
+    delete = "delete",
+    patch = "update",
+    post = "create"
 }
 
 @Injectable({
@@ -23,6 +25,7 @@ export class HttpService {
     constructor(
         private httpClient: HttpClient,
         private storageService: StorageService,
+        private toastService: ToastService,
         private webSocketService: WebSocketService
     ) {}
 
@@ -43,25 +46,44 @@ export class HttpService {
     }
 
     async request(type: RequestType, route: string, body?: any) {
-        let response;
-        const headers = await this.getHeaders();
-        console.log(logRequest, type, route, body ? body : "");
+        const resource = route.split("/")[1].slice(0, -1).split("-").join(" ");
+        const toastResource = resource !== "user" ? resource : "account";
 
-        switch (type) {
-            case RequestType.delete:
-                response = await this.httpClient.delete(httpUrl + route, headers).toPromise();
+        switch (AppComponent.connectionStatus) {
+            case "Connected":
+                let response;
+                const url = httpUrl + route;
+                const headers = await this.getHeaders();
+                console.log(logRequest, type.toUpperCase(), resource, body ? body : "");
+
+                switch (type) {
+                    case RequestType.delete:
+                        response = await this.httpClient.delete(url, headers).toPromise();
+                        break;
+                    case RequestType.patch:
+                        response = await this.httpClient.patch(url, body, headers).toPromise();
+                        break;
+                    case RequestType.post:
+                        response = await this.httpClient.post(url, body, headers).toPromise();
+                        break;
+                }
+
+                response = this.mapDateValues(response);
+                console.log(logResponse, type.toUpperCase(), resource, response ? response : "");
+                return response ?? true;
+            case "Connecting":
+                await this.toastService.present(
+                    "danger",
+                    `Cannot ${type} ${toastResource} while connecting. Please try again after you have connected.`
+                );
                 break;
-            case RequestType.patch:
-                response = await this.httpClient.patch(httpUrl + route, body, headers).toPromise();
-                break;
-            case RequestType.post:
-                response = await this.httpClient.post(httpUrl + route, body, headers).toPromise();
+            case "Disconnected":
+                await this.toastService.present(
+                    "danger",
+                    `Cannot ${type} ${toastResource} while disconnected. Please connect to continue.`
+                );
                 break;
         }
-
-        response = this.mapDateValues(response);
-        console.log(logResponse, type, route, response ? response : "");
-        return response;
     }
 
     mapDateValues(object: any) {

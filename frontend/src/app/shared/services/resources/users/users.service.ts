@@ -1,13 +1,15 @@
 import { EventEmitter, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { orderBy, remove } from "lodash";
+import { Device as CapacitorDevice } from "@capacitor/device";
+import { merge, orderBy } from "lodash";
 
-import { Device, DevicesService } from "../devices/devices.service";
+import { Device } from "../devices/devices.service";
 import { Tuple } from "../tuples/tuples.service";
 import { HttpService } from "../../utils/http/http.service";
 import { StorageKey, StorageService } from "../../utils/storage/storage.service";
 import { ToastService } from "../../utils/toast/toast.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
+import { AppComponent } from "../../../../app.component";
 
 const route = "/users";
 
@@ -28,156 +30,158 @@ export type User = {
 export class UsersService {
     connectionEvent = new EventEmitter<void>();
     changeEvent = new EventEmitter<"device" | "tuple" | "user">();
+    requestId: string;
     user?: User;
 
     private unableToLogInToast: HTMLIonToastElement;
 
     constructor(
-        private devicesService: DevicesService,
         private httpService: HttpService,
         private router: Router,
         private storageService: StorageService,
         private toastService: ToastService,
         private webSocketService: WebSocketService
     ) {
+        this.setUser();
+
         this.webSocketService.connectionEvent.subscribe((event) => {
-            switch (event) {
-                case "connectionId":
-                    this.connect();
-                    break;
-                case "disconnected":
-                    this.user = undefined;
-                    break;
+            if (event === "connectionId") {
+                AppComponent.connectionStatus = "Connected";
+                this.connect();
             }
         });
 
-        this.webSocketService.deviceEvent.subscribe(async (deviceEvent) => {
-            const { createDevice, updateDevice, deleteDevice } = deviceEvent;
-            const currentDeviceId = await this.storageService.get(StorageKey.deviceId);
-
-            if (createDevice || updateDevice) {
-                const device = createDevice
-                    ? this.httpService.mapDateValues(createDevice)
-                    : this.httpService.mapDateValues(updateDevice);
-
-                if (this.user) {
-                    const currentDeviceIndex = this.user.devices.findIndex(
-                        (d) => d.id === device.id
-                    );
-
-                    if (currentDeviceIndex === -1) {
-                        this.user.devices.push(device);
-                    } else {
-                        this.user.devices[currentDeviceIndex] = device;
-                    }
-                } else if (device.id === currentDeviceId && device.isVerified) {
-                    this.connect();
-                    this.toastService.present("primary", "This device has been verified");
-                }
-            } else if (deleteDevice) {
-                if (deleteDevice.id === currentDeviceId) {
-                    this.toastService.present(
-                        "danger",
-                        "This device has been removed from the account by another device"
-                    );
-                    this.logout();
-                } else {
-                    this.user.devices = this.user.devices.filter((d) => d.id !== deleteDevice.id);
-                }
-            }
-
-            this.user.devices = orderBy(this.user.devices, "createdAt", "asc");
-            this.changeEvent.emit("device");
-        });
-
-        this.webSocketService.tupleEvent.subscribe((tupleEvent) => {
-            const { createTuple, updateTuple, deleteTuple } = tupleEvent;
-
-            if (createTuple) {
-                const tuple = this.httpService.mapDateValues(createTuple);
-                this.user.tuples.unshift(tuple);
-            } else if (deleteTuple) {
-                remove(this.user.tuples, (t) => t.id === deleteTuple.id);
-            } else if (updateTuple) {
-                const tuple = this.httpService.mapDateValues(updateTuple);
-                const currentTupleIndex = this.user.tuples.findIndex((t) => t.id === tuple.id);
-                this.user.tuples[currentTupleIndex] = tuple;
-            }
-
-            this.user.tuples = orderBy(this.user.tuples, "createdAt", "desc");
-
-            for (const tuple of this.user.tuples) {
-                tuple.tupleItems = orderBy(tuple.tupleItems, "order", "asc");
-            }
-
-            this.changeEvent.emit("tuple");
-        });
-
-        this.webSocketService.userEvent.subscribe((userEvent) => {
+        this.webSocketService.userEvent.subscribe(async (userEvent) => {
             const { updateUser, deleteUser } = userEvent;
 
             if (updateUser) {
-                const user = this.httpService.mapDateValues(updateUser);
-                this.setUser(user);
+                await this.setUser(updateUser);
+                this.changeEvent.emit("user");
             } else if (deleteUser) {
                 this.logout();
             }
-
-            this.user = Object.assign({}, this.user);
-            this.changeEvent.emit("user");
         });
     }
 
     async connect() {
-        const requestId = await this.storageService.get(StorageKey.requestId);
+        this.requestId = await this.storageService.get(StorageKey.requestId);
 
         if (this.unableToLogInToast) {
             this.unableToLogInToast.dismiss();
         }
 
-        if (requestId) {
+        if (this.requestId) {
             try {
                 const user = await this.httpService.patch(`${route}/connect`);
-                this.setUser(user);
+                await this.setUser(user);
             } catch (error) {
                 console.error(error);
-                this.router.navigateByUrl("/");
                 this.unableToLogInToast = await this.toastService.present(
                     "danger",
                     `Unable to log in to the account associated with this device.
-                    Please refresh account to try again.`
+                    Please refresh to try again.`
                 );
             }
+        } else if (this.user) {
+            await this.toastService.present(
+                "danger",
+                "This device has been removed from the account by another device"
+            );
+            this.logout();
         }
 
         this.connectionEvent.emit();
     }
 
     async create() {
-        const user = await this.httpService.post(route, {
-            deviceInfo: this.devicesService.deviceInfo
-        });
-        this.setUser(user);
-        await this.storageService.set(StorageKey.requestId, user.requestId);
+        let created = false;
+        AppComponent.showProgressBar = true;
+
+        try {
+            const response = await this.httpService.post(route, {
+                deviceInfo: await CapacitorDevice.getInfo()
+            });
+
+            if (response) {
+                await this.setUser(response);
+                await this.storageService.set(StorageKey.requestId, response.requestId);
+                created = true;
+            }
+        } catch (error) {
+            console.error(error);
+            await this.toastService.present("danger", "Unable to create an account");
+        }
+
+        AppComponent.showProgressBar = false;
+        return created;
     }
 
     async delete() {
-        await this.httpService.delete(route);
-        await this.logout();
-    }
+        AppComponent.showProgressBar = true;
 
-    async logout() {
-        await this.storageService.remove(StorageKey.requestId);
-        this.user = undefined;
-        this.router.navigateByUrl("/");
+        try {
+            const response = await this.httpService.delete(route);
+
+            if (response) {
+                await this.logout();
+            }
+        } catch (error) {
+            console.error(error);
+            await this.toastService.present("danger", "Unable to delete account");
+        }
+
+        AppComponent.showProgressBar = false;
     }
 
     async update(user: Partial<User>) {
-        await this.httpService.patch(route, user);
+        let updated = false;
+        AppComponent.showProgressBar = true;
+
+        try {
+            const response = await this.httpService.patch(route, user);
+
+            if (response) {
+                this.setUser(response);
+                updated = true;
+            }
+        } catch (error) {
+            console.error(error);
+
+            const {
+                error: { message }
+            } = error;
+            let errorMessage = "Unable to update account";
+
+            switch (message) {
+                case "Username is taken":
+                case "New username cannot start with 'User'":
+                    errorMessage = message;
+                    break;
+            }
+
+            await this.toastService.present("danger", errorMessage);
+        }
+
+        AppComponent.showProgressBar = false;
+        return updated;
     }
 
-    private setUser(user: User) {
+    async logout() {
+        this.requestId = undefined;
+        this.user = undefined;
+        await this.storageService.remove(StorageKey.requestId);
+        await this.storageService.remove(StorageKey.user);
+        this.router.navigateByUrl("/");
+    }
+
+    async setUser(user?: User) {
+        if (!user) {
+            const userString = await this.storageService.get(StorageKey.user);
+            user = userString ? JSON.parse(userString) : undefined;
+        }
+
         if (user) {
+            user = this.httpService.mapDateValues(user);
             user.devices = orderBy(user.devices, "createdAt", "asc");
             user.tuples = orderBy(user.tuples, "createdAt", "desc");
 
@@ -185,7 +189,13 @@ export class UsersService {
                 tuple.tupleItems = orderBy(tuple.tupleItems, "order", "asc");
             }
 
-            this.user = user;
+            if (this.user) {
+                merge(this.user, user);
+            } else {
+                this.user = user;
+            }
+
+            await this.storageService.set(StorageKey.user, JSON.stringify(user));
         }
     }
 }

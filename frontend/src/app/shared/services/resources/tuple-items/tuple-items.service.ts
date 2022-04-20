@@ -1,7 +1,11 @@
 import { Injectable } from "@angular/core";
+import { merge, remove } from "lodash";
 
-import { HttpService } from "../../utils/http/http.service";
+import { TuplesService } from "../tuples/tuples.service";
 import { UsersService } from "../users/users.service";
+import { HttpService } from "../../utils/http/http.service";
+import { ToastService } from "../../utils/toast/toast.service";
+import { AppComponent } from "../../../../app.component";
 
 const route = "/tuple-items";
 
@@ -11,32 +15,86 @@ export type TupleItem = {
     id: number;
     isChecked: boolean;
     order: number;
-    value: string;
+    name: string;
+    tupleId?: number;
 };
 
 @Injectable({
     providedIn: "root"
 })
 export class TupleItemsService {
-    constructor(private httpService: HttpService, private usersService: UsersService) {}
+    constructor(
+        private httpService: HttpService,
+        private toastService: ToastService,
+        private tupleService: TuplesService,
+        private usersService: UsersService
+    ) {}
 
     async create(tupleId: number, order: number) {
-        await this.httpService.post(route, { tupleId, order });
+        AppComponent.showProgressBar = true;
+
+        try {
+            const response = await this.httpService.post(route, { tupleId, order });
+
+            if (response) {
+                const user = this.usersService.user;
+                const tupleItems = user.tuples.find((t) => t.id === tupleId).tupleItems;
+                tupleItems.splice(order, 0, response);
+                this.usersService.setUser(user);
+
+                if (order < tupleItems.length - 1) {
+                    await this.tupleService.reorder(tupleId, tupleItems);
+                }
+            }
+        } catch (error) {
+            console.error(error);
+            await this.toastService.present("danger", "Unable to create tuple item");
+        }
+
+        AppComponent.showProgressBar = false;
     }
 
-    async update(id: number, partialTupleItem: Partial<TupleItem>) {
-        await this.httpService.patch(`${route}/${id}`, partialTupleItem);
+    async delete(tupleId: number, id: number) {
+        AppComponent.showProgressBar = true;
+
+        try {
+            const response = await this.httpService.delete(`${route}/${id}`);
+
+            if (response) {
+                const user = this.usersService.user;
+                remove(user.tuples.find((t) => t.id === tupleId).tupleItems, (ti) => ti.id === id);
+                this.usersService.setUser(user);
+            }
+        } catch (error) {
+            console.error(error);
+            await this.toastService.present("danger", "Unable to delete tuple item");
+        }
+
+        AppComponent.showProgressBar = false;
     }
 
-    async reorder(tupleId: number, tupleItems: Pick<TupleItem, "order">[]) {
-        await this.batchUpdate(tupleId, tupleItems);
-    }
+    async update(tupleId: number, id: number, tupleItem: Partial<TupleItem>) {
+        let updated = false;
+        AppComponent.showProgressBar = true;
 
-    async delete(id: number) {
-        await this.httpService.delete(`${route}/${id}`);
-    }
+        try {
+            const response = await this.httpService.patch(`${route}/${id}`, tupleItem);
 
-    private async batchUpdate(tupleId: number, tupleItems: Partial<TupleItem>[]) {
-        await this.httpService.patch(`${route}`, { tupleId, tupleItems });
+            if (response) {
+                const user = this.usersService.user;
+                merge(
+                    user.tuples.find((t) => t.id === tupleId).tupleItems.find((ti) => ti.id === id),
+                    tupleItem
+                );
+                this.usersService.setUser(user);
+                updated = true;
+            }
+        } catch (error) {
+            console.error(error);
+            await this.toastService.present("danger", `Unable to update tuple item`);
+        }
+
+        AppComponent.showProgressBar = false;
+        return updated;
     }
 }
