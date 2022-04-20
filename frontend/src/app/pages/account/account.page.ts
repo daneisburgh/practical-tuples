@@ -79,7 +79,9 @@ export class AccountPage implements OnInit, OnDestroy {
 
     @HostListener("unloaded")
     ngOnDestroy() {
-        this.usersServiceChangeEventSubscription.unsubscribe();
+        if (this.usersServiceChangeEventSubscription) {
+            this.usersServiceChangeEventSubscription.unsubscribe();
+        }
     }
 
     ngOnInit() {
