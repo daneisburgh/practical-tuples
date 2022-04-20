@@ -38,9 +38,7 @@ export class WebSocketService {
 
     private subject?: WebSocketSubject<any>;
 
-    constructor() {
-        this.connect();
-    }
+    constructor() {}
 
     connect() {
         console.log("CONNECTING");

@@ -3,7 +3,8 @@ import { Storage } from "@ionic/storage";
 
 export enum StorageKey {
     deviceId = "deviceId",
-    requestId = "requestId"
+    requestId = "requestId",
+    user = "user"
 }
 
 @Injectable({
