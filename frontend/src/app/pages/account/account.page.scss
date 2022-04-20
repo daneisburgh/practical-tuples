@@ -3,16 +3,16 @@
     > ion-col,
     ion-grid {
         padding: 0;
-    }
 
-    .section-title {
-        font-size: 18px;
-
-        ion-select {
-            width: 36px;
-            margin: 0;
+        #select-max-devices {
+            width: 32px;
+            margin: 0 8px 0 12px;
             padding: 0;
             display: inline-flex;
+        }
+
+        .section-title {
+            font-size: 18px;
         }
     }
 }
@@ -20,15 +20,20 @@
 #devices-row {
     margin: 8px 0 16px;
 
-    .device-row ion-col {
-        min-height: 40px;
+    .device-row {
+        padding: 0 8px;
+
+        ion-col {
+            min-height: 40px;
+            padding: 0;
+
+            .button-delete-device {
+                margin: -12px -6px 0;
+            }
+        }
     }
 }
 
 #add-friend-row ion-button {
     margin: 0;
-}
-
-.device-button {
-    margin: -11px 2px 0 0;
 }

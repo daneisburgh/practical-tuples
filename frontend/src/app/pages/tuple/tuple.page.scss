@@ -51,3 +51,12 @@ input {
 .line-through {
     text-decoration: line-through;
 }
+
+.name-input {
+    width: fit-content;
+    cursor: pointer;
+}
+
+.title-row span {
+    font-size: 20px;
+}

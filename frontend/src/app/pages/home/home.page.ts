@@ -1,5 +1,4 @@
-import { Component, HostListener, OnInit, ViewChild } from "@angular/core";
-import { Router } from "@angular/router";
+import { Component, HostListener, ViewChild } from "@angular/core";
 import { AlertController, IonModal } from "@ionic/angular";
 
 import { AppComponent } from "../../app.component";
@@ -10,15 +9,13 @@ import {
     TupleType
 } from "../../shared/services/resources/tuples/tuples.service";
 import { UsersService } from "../../shared/services/resources/users/users.service";
-import { StorageKey, StorageService } from "../../shared/services/utils/storage/storage.service";
-import { ToastService } from "../../shared/services/utils/toast/toast.service";
 
 @Component({
     selector: "app-home",
     templateUrl: "home.page.html",
     styleUrls: ["home.page.scss"]
 })
-export class HomePage implements OnInit {
+export class HomePage {
     @ViewChild("addDeviceModal") addDeviceModal: IonModal;
 
     addDeviceToAccountUsername = "";
@@ -28,33 +25,32 @@ export class HomePage implements OnInit {
     isDeletingTuple = false;
     isPresentingAddDeviceToAccountModal = false;
     isRefreshingAccount = false;
-    requestId: string;
     updatingTupleId = -1;
 
     constructor(
         private alertController: AlertController,
         private devicesService: DevicesService,
-        private router: Router,
-        private storageService: StorageService,
-        private toastService: ToastService,
         private tuplesService: TuplesService,
         private usersService: UsersService
     ) {}
 
     get isInputDisabled() {
-        const isInputDisabled =
+        return (
             this.deletingTupleId > -1 ||
             this.isCreatingAccount ||
             this.isCreatingTuple ||
             this.isRefreshingAccount ||
-            this.updatingTupleId > -1;
-
-        AppComponent.showProgressBar = isInputDisabled;
-        return isInputDisabled || this.isAddingDeviceToAccount;
+            this.updatingTupleId > -1 ||
+            this.isAddingDeviceToAccount
+        );
     }
 
     get isCreatingAccount() {
         return AppComponent.isCreatingAccount;
+    }
+
+    get requestId() {
+        return this.usersService.requestId;
     }
 
     get user() {
@@ -74,39 +70,12 @@ export class HomePage implements OnInit {
         }
     }
 
-    ngOnInit() {
-        this.setRequestId();
-    }
-
     async addDeviceToAccount() {
         this.isAddingDeviceToAccount = true;
+        const created = await this.devicesService.create(this.addDeviceToAccountUsername);
 
-        try {
-            await this.devicesService.create(this.addDeviceToAccountUsername);
-            this.toastService.present(
-                "primary",
-                `This device has been added to the account.
-                Please verify the device in the Account page of an active device to continue.`
-            );
+        if (created) {
             this.addDeviceModal.dismiss();
-        } catch (error) {
-            console.error(error);
-
-            const {
-                error: { message }
-            } = error;
-            let errorMessage = "Unable to add device to account";
-
-            switch (message) {
-                case "Username not found":
-                case "Account has maximum allowed devices":
-                case "Device already associated with account":
-                case "Device associated with another account":
-                    errorMessage = message;
-                    break;
-            }
-
-            this.toastService.present("danger", errorMessage);
         }
 
         this.isAddingDeviceToAccount = false;
@@ -137,34 +106,22 @@ export class HomePage implements OnInit {
 
     async createAccount() {
         AppComponent.isCreatingAccount = true;
+        const created = await this.usersService.create();
 
-        try {
-            await this.usersService.create();
+        if (created) {
             await this.createTuple();
-        } catch (error) {
-            console.error(error);
-            this.toastService.present("danger", "Unable to create an account");
         }
 
         AppComponent.isCreatingAccount = false;
-        AppComponent.showProgressBar = false;
     }
 
     async createTuple() {
         this.isCreatingTuple = true;
-
-        try {
-            const { id } = await this.tuplesService.create();
-            this.router.navigateByUrl("/tuple/" + id);
-        } catch (error) {
-            console.error(error);
-            this.toastService.present("danger", "Unable to create a tuple");
-        }
-
+        await this.tuplesService.create();
         this.isCreatingTuple = false;
     }
 
-    async deleteTuple(tuple: Tuple) {
+    async deleteTuple(id: number) {
         (
             await this.alertController.create({
                 message: "Please confirm tuple deletion. This action is irreversible.",
@@ -174,12 +131,10 @@ export class HomePage implements OnInit {
                         cssClass: "alert-button-danger",
                         handler: async () => {
                             this.isDeletingTuple = true;
-                            this.deletingTupleId = tuple.id;
-                            AppComponent.showProgressBar = true;
-                            await this.tuplesService.delete(tuple.id);
+                            this.deletingTupleId = id;
+                            await this.tuplesService.delete(id);
                             this.deletingTupleId = -1;
                             this.isDeletingTuple = false;
-                            AppComponent.showProgressBar = false;
                         }
                     },
                     {
@@ -214,11 +169,9 @@ export class HomePage implements OnInit {
 
     async refreshAccount() {
         this.isRefreshingAccount = true;
+        AppComponent.showProgressBar = true;
         await this.usersService.connect();
         this.isRefreshingAccount = false;
-    }
-
-    private async setRequestId() {
-        this.requestId = await this.storageService.get(StorageKey.requestId);
+        AppComponent.showProgressBar = false;
     }
 }

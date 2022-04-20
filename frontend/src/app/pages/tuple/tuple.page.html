@@ -77,9 +77,11 @@
                 <ion-col>
                     <ion-reorder-group
                         [disabled]="isInputDisabled"
-                        (ionItemReorder)="reorder($event)"
+                        (ionItemReorder)="handleTupleItemReorder($event)"
                     >
-                        <ion-item *ngFor="let tupleItem of tuple.tupleItems">
+                        <ion-item
+                            *ngFor="let tupleItem of tuple.tupleItems; let tupleItemIndex = index"
+                        >
                             <ion-reorder
                                 *ngIf="tuple.tupleItems.length > 1"
                                 slot="start"
@@ -88,30 +90,31 @@
                             <ion-checkbox
                                 *ngIf="isTupleTypeCheckbox"
                                 [checked]="tupleItem.isChecked"
-                                [disabled]="isInputDisabled"
-                                (ionChange)="updateTupleItemChecked(tupleItem)"
+                                [disabled]="isInputDisabled || !isConnected"
+                                (ionChange)="updateTupleItemChecked(tupleItemIndex)"
                             ></ion-checkbox>
                             <ion-label>
                                 <span
-                                    *ngIf="!showTupleItemValueInput(tupleItem)"
-                                    class="d-flex ion-align-items-center"
+                                    *ngIf="!showTupleItemNameInput(tupleItem)"
+                                    class="d-flex ion-align-items-center name-input"
                                     [ngClass]="{
                                         disabled: isInputDisabled,
                                         'line-through': isTupleTypeCheckbox && tupleItem.isChecked
                                     }"
+                                    (click)="toggleTupleItemNameInput(tupleItemIndex)"
                                 >
-                                    {{ tupleItem.value }}
+                                    {{ tupleItem.name }}
                                 </span>
                                 <span
-                                    *ngIf="showTupleItemValueInput(tupleItem)"
+                                    *ngIf="showTupleItemNameInput(tupleItem)"
                                     class="d-flex ion-align-items-center"
                                 >
                                     <input
                                         #input
                                         maxlength="20"
-                                        [disabled]="isUpdatingTupleItemValue"
-                                        [value]="tupleItem.value"
-                                        [(ngModel)]="tupleItemValueInput"
+                                        [disabled]="isUpdatingTupleItemName"
+                                        [value]="tupleItem.name"
+                                        [(ngModel)]="tupleItemNameInput"
                                         (focusout)="handleInputElementFocusOut()"
                                     />
                                     <ion-button
@@ -119,10 +122,10 @@
                                         color="dark"
                                         fill="clear"
                                         [disabled]="
-                                            isUpdatingTupleItemValue ||
-                                            tupleItemValueInput === tupleItem.value
+                                            isUpdatingTupleItemName ||
+                                            tupleItemNameInput === tupleItem.name
                                         "
-                                        (click)="updateTupleItemValue()"
+                                        (click)="updateTupleItemName(tupleItemIndex)"
                                     >
                                         <ion-icon slot="icon-only" name="save"></ion-icon>
                                     </ion-button>
@@ -130,8 +133,8 @@
                                         class="icon-button"
                                         color="dark"
                                         fill="clear"
-                                        [disabled]="isUpdatingTupleItemValue"
-                                        (click)="showTupleItemValueInputId = -1"
+                                        [disabled]="isUpdatingTupleItemName"
+                                        (click)="showTupleItemNameInputId = -1"
                                     >
                                         <ion-icon slot="icon-only" name="close"></ion-icon>
                                     </ion-button>
@@ -147,7 +150,7 @@
                                 <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
                             </ion-button>
                             <ion-popover
-                                *ngIf="showTupleItemPopoverTrigger(tupleItem)"
+                                *ngIf="showTupleItemPopoverTrigger(tupleItem.id)"
                                 dismiss-on-select="true"
                                 reference="trigger"
                                 [trigger]="'tuple-item-popover-trigger-' + tupleItem.id"
@@ -156,10 +159,10 @@
                                     <ion-content>
                                         <ion-item
                                             button="true"
-                                            (click)="toggleTupleItemValueInput(tupleItem)"
+                                            (click)="toggleTupleItemNameInput(tupleItemIndex)"
                                         >
                                             <ion-icon name="create"></ion-icon>
-                                            <ion-label>Change item value</ion-label>
+                                            <ion-label>Rename item</ion-label>
                                         </ion-item>
                                         <ion-item
                                             button="true"
@@ -170,7 +173,7 @@
                                         </ion-item>
                                         <ion-item
                                             button="true"
-                                            (click)="deleteTupleItem(tupleItem)"
+                                            (click)="deleteTupleItem(tupleItem.id)"
                                         >
                                             <ion-icon color="danger" name="trash"></ion-icon>
                                             <ion-label color="danger">Delete item</ion-label>
@@ -192,5 +195,4 @@
             </ion-row>
         </ion-grid>
     </div>
-    <app-footer></app-footer>
 </ion-content>

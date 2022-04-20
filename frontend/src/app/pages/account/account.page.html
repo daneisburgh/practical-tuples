@@ -74,26 +74,25 @@
                     <ion-grid>
                         <ion-row>
                             <ion-col class="section-title">Devices</ion-col>
-                            <ion-col class="section-title ion-text-end">
-                                <div>
-                                    Max devices:
-                                    <ion-select
-                                        interface="popover"
-                                        [disabled]="isInputDisabled"
-                                        [interfaceOptions]="{
-                                            cssClass: 'account-max-devices-popover'
-                                        }"
-                                        [(ngModel)]="maxDevices"
-                                        (ionChange)="updateMaxDevices()"
-                                    >
-                                        <ion-select-option
-                                            *ngFor="let value of maxDeviceValues"
-                                            [disabled]="value < user.devices.length"
-                                            [value]="value"
-                                            >{{ value }}
-                                        </ion-select-option>
-                                    </ion-select>
-                                </div>
+                            <ion-col class="d-flex ion-align-items-center ion-justify-content-end">
+                                Max devices:
+                                <ion-select
+                                    id="select-max-devices"
+                                    interface="popover"
+                                    [disabled]="isInputDisabled || !canUpdateMaxDevices"
+                                    [interfaceOptions]="{
+                                        cssClass: 'account-max-devices-popover'
+                                    }"
+                                    [(ngModel)]="maxDevices"
+                                    (ionChange)="updateMaxDevices()"
+                                >
+                                    <ion-select-option
+                                        *ngFor="let value of maxDeviceValues"
+                                        [disabled]="value < user.devices.length"
+                                        [value]="value"
+                                        >{{ value }}
+                                    </ion-select-option>
+                                </ion-select>
                             </ion-col>
                         </ion-row>
                         <ion-row>
@@ -102,22 +101,24 @@
                             </ion-col>
                         </ion-row>
                         <ion-row class="device-row ion-align-items-start">
+                            <ion-col size="1">#</ion-col>
                             <ion-col size="3">OS</ion-col>
                             <ion-col size="3">Platform</ion-col>
-                            <ion-col>Added</ion-col>
+                            <ion-col size="3">Added</ion-col>
                             <ion-col size="2"></ion-col>
                         </ion-row>
                         <ion-row
-                            *ngFor="let device of user.devices"
+                            *ngFor="let device of user.devices; let deviceIndex = index"
                             class="device-row ion-align-items-start"
                         >
+                            <ion-col size="1">{{ deviceIndex + 1 }}</ion-col>
                             <ion-col size="3">
                                 {{ getDeviceInfoString(device.info.operatingSystem) }}
                             </ion-col>
                             <ion-col size="3">{{
                                 getDeviceInfoString(device.info.platform)
                             }}</ion-col>
-                            <ion-col>
+                            <ion-col size="3">
                                 {{ getDeviceCreatedDateString(device.createdAt) }}
                                 <br *ngIf="isSmallScreen" />
                                 {{ getDeviceCreatedTimeString(device.createdAt) }}
@@ -125,7 +126,7 @@
                             <ion-col size="2" class="ion-text-end">
                                 <ion-button
                                     *ngIf="!device.isVerified"
-                                    class="icon-button device-button"
+                                    class="icon-button button-delete-device"
                                     color="dark"
                                     fill="clear"
                                     [disabled]="isInputDisabled"
@@ -141,7 +142,7 @@
                                 <ion-button
                                     *ngIf="device.isVerified"
                                     [id]="'delete-device-popover-trigger-' + device.id"
-                                    class="icon-button device-button"
+                                    class="icon-button"
                                     color="danger"
                                     fill="clear"
                                     [disabled]="isInputDisabled || isCurrentDevice(device.id)"
@@ -178,5 +179,4 @@
             </ion-row>
         </ion-grid>
     </div>
-    <app-footer></app-footer>
 </ion-content>

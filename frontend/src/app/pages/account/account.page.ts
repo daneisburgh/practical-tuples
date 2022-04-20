@@ -1,13 +1,7 @@
-import {
-    AfterViewInit,
-    Component,
-    ElementRef,
-    HostListener,
-    OnInit,
-    ViewChild
-} from "@angular/core";
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { AlertController } from "@ionic/angular";
-import { remove, upperFirst } from "lodash";
+import { upperFirst } from "lodash";
+import { Subscription } from "rxjs";
 
 import { AppComponent } from "../../app.component";
 import { DevicesService } from "../../shared/services/resources/devices/devices.service";
@@ -20,11 +14,12 @@ import { ToastService } from "../../shared/services/utils/toast/toast.service";
     templateUrl: "./account.page.html",
     styleUrls: ["./account.page.scss"]
 })
-export class AccountPage implements OnInit, AfterViewInit {
+export class AccountPage implements OnInit, OnDestroy {
     @ViewChild("input") inputElement: ElementRef;
 
     readonly maxDeviceValues = [1, 2, 3];
 
+    canUpdateMaxDevices = true;
     currentDeviceId: string;
     isDeletingDevice = false;
     isDeletingUser = false;
@@ -36,6 +31,8 @@ export class AccountPage implements OnInit, AfterViewInit {
     updatingDeviceId: string;
     usernameInput: string;
 
+    private usersServiceChangeEventSubscription: Subscription;
+
     constructor(
         private alertController: AlertController,
         private devicesService: DevicesService,
@@ -45,14 +42,13 @@ export class AccountPage implements OnInit, AfterViewInit {
     ) {}
 
     get isInputDisabled() {
-        const isInputDisabled =
+        return (
             this.isDeletingDevice ||
             this.isDeletingUser ||
             this.isUpdatingMaxDevices ||
             this.isUpdatingUsername ||
-            this.isVerifyingDevice;
-        AppComponent.showProgressBar = isInputDisabled;
-        return isInputDisabled;
+            this.isVerifyingDevice
+        );
     }
 
     get isSmallScreen() {
@@ -81,15 +77,23 @@ export class AccountPage implements OnInit, AfterViewInit {
         }
     }
 
-    ngOnInit() {
-        this.setCurrentDeviceId();
+    @HostListener("unloaded")
+    ngOnDestroy() {
+        this.usersServiceChangeEventSubscription.unsubscribe();
     }
 
-    ngAfterViewInit() {
-        if (this.user) {
-            this.maxDevices = this.user.maxDevices;
-            this.usersService.changeEvent.subscribe(() => (this.maxDevices = this.user.maxDevices));
-        }
+    ngOnInit() {
+        this.setData();
+        this.usersServiceChangeEventSubscription = this.usersService.changeEvent.subscribe(() => {
+            if (this.user && this.maxDevices !== this.user.maxDevices) {
+                this.canUpdateMaxDevices = false;
+                this.maxDevices = this.user.maxDevices;
+
+                setTimeout(() => {
+                    this.canUpdateMaxDevices = true;
+                }, 250);
+            }
+        });
     }
 
     async deleteDevice(id: string) {
@@ -124,14 +128,7 @@ export class AccountPage implements OnInit, AfterViewInit {
                         cssClass: "alert-button-danger",
                         handler: async () => {
                             this.isDeletingUser = true;
-
-                            try {
-                                await this.usersService.delete();
-                            } catch (error) {
-                                console.error(error);
-                                this.toastService.present("danger", "Unable to delete user");
-                            }
-
+                            await this.usersService.delete();
                             this.isDeletingUser = false;
                         }
                     },
@@ -180,22 +177,25 @@ export class AccountPage implements OnInit, AfterViewInit {
     }
 
     async updateMaxDevices() {
-        if (!this.isUpdatingMaxDevices) {
+        if (
+            this.maxDevices !== this.user.maxDevices &&
+            this.canUpdateMaxDevices &&
+            !this.isUpdatingMaxDevices
+        ) {
             this.isUpdatingMaxDevices = true;
+            const updated = await this.usersService.update({ maxDevices: this.maxDevices });
 
-            try {
-                await this.usersService.update({ maxDevices: this.maxDevices });
+            if (updated) {
                 this.user.maxDevices = this.maxDevices;
-            } catch (error) {
-                console.error(error);
-                this.maxDevices = this.user.maxDevices;
-                this.toastService.present("danger", "Unable to update max devices");
             }
 
             setTimeout(() => {
-                AppComponent.showProgressBar = false;
+                if (!updated) {
+                    this.maxDevices = this.user.maxDevices;
+                }
+
                 this.isUpdatingMaxDevices = false;
-            }, 250);
+            }, 500);
         }
     }
 
@@ -204,27 +204,11 @@ export class AccountPage implements OnInit, AfterViewInit {
 
         if (username !== this.usernameInput) {
             this.isUpdatingUsername = true;
+            const updated = await this.usersService.update({ username: this.usernameInput });
 
-            try {
-                await this.usersService.update({ username: this.usernameInput });
+            if (updated) {
                 this.user.username = this.usernameInput;
                 this.showUsernameInput = false;
-            } catch (error) {
-                console.error(error);
-
-                const {
-                    error: { message }
-                } = error;
-                let errorMessage = "Unable to update username";
-
-                switch (message) {
-                    case "Username it taken":
-                    case "New username cannot start with 'User'":
-                        errorMessage = message;
-                        break;
-                }
-
-                this.toastService.present("danger", errorMessage);
             }
 
             this.isUpdatingUsername = false;
@@ -242,14 +226,7 @@ export class AccountPage implements OnInit, AfterViewInit {
                         cssClass: "alert-button-primary",
                         handler: async () => {
                             this.isVerifyingDevice = true;
-
-                            try {
-                                await this.devicesService.update(id, { isVerified: true });
-                            } catch (error) {
-                                console.error(error);
-                                this.toastService.present("danger", "Unable to verify device");
-                            }
-
+                            await this.devicesService.verify(id);
                             this.isVerifyingDevice = false;
                         }
                     },
@@ -278,21 +255,22 @@ export class AccountPage implements OnInit, AfterViewInit {
         }, 250);
     }
 
-    private async setCurrentDeviceId() {
-        this.currentDeviceId = await this.storageService.get(StorageKey.deviceId);
+    private async setData() {
+        this.currentDeviceId =
+            this.currentDeviceId ?? (await this.storageService.get(StorageKey.deviceId));
+
+        if (!this.user) {
+            await this.usersService.setUser();
+        }
+
+        if (this.user && this.maxDevices === undefined) {
+            this.maxDevices = this.user.maxDevices;
+        }
     }
 
     private async confirmedDeleteDevice(id: string) {
         this.isDeletingDevice = true;
-
-        try {
-            await this.devicesService.delete(id);
-            remove(this.usersService.user.devices, (device) => device.id === id);
-        } catch (error) {
-            console.error(error);
-            this.toastService.present("danger", "Unable to delete device");
-        }
-
+        await this.devicesService.delete(id);
         this.isDeletingDevice = false;
     }
 }

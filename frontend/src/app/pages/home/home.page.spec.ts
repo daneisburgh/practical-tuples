@@ -1,15 +1,13 @@
 import { HttpClientModule } from "@angular/common/http";
-import { ComponentFixture, TestBed, waitForAsync } from "@angular/core/testing";
-import { RouterModule } from "@angular/router";
+import { CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
+import { TestBed, waitForAsync } from "@angular/core/testing";
+import { RouterTestingModule } from "@angular/router/testing";
 import { IonicModule } from "@ionic/angular";
 import { IonicStorageModule } from "@ionic/storage-angular";
 
 import { HomePage } from "./home.page";
 
 describe("HomePage", () => {
-    let component: HomePage;
-    let fixture: ComponentFixture<HomePage>;
-
     beforeEach(
         waitForAsync(() => {
             TestBed.configureTestingModule({
@@ -18,17 +16,16 @@ describe("HomePage", () => {
                     HttpClientModule,
                     IonicModule.forRoot(),
                     IonicStorageModule.forRoot(),
-                    RouterModule.forRoot([])
-                ]
+                    RouterTestingModule
+                ],
+                schemas: [CUSTOM_ELEMENTS_SCHEMA]
             }).compileComponents();
-
-            fixture = TestBed.createComponent(HomePage);
-            component = fixture.componentInstance;
-            fixture.detectChanges();
         })
     );
 
     it("should create", () => {
-        expect(component).toBeTruthy();
+        const fixture = TestBed.createComponent(HomePage);
+        const app = fixture.debugElement.componentInstance;
+        expect(app).toBeTruthy();
     });
 });
