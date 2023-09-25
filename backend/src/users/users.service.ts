@@ -27,6 +27,8 @@ export class UsersService {
             relations: [
                 "devices",
                 "devices.connection",
+                "friendRequestsReceived",
+                "friendRequestsSent",
                 "tuples",
                 "tuples.tupleItems",
                 "tuples.users"

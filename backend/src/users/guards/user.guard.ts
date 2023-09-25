@@ -25,8 +25,8 @@ export class UserGuard implements CanActivate {
             !user.devices.find(
                 (device) =>
                     device.id === deviceId &&
-                    device.isVerified &&
-                    device.connectionId === connectionId
+                    device.connectionId === connectionId &&
+                    device.isVerified
             )
         ) {
             throw new BadRequestException("Invalid user");
