@@ -90,6 +90,10 @@ ion-button,
     text-transform: none !important;
 }
 
+ion-card {
+    margin: 6px;
+}
+
 ion-item {
     --padding-start: 0;
 }
@@ -99,6 +103,25 @@ ion-list {
 }
 
 ion-modal {
+    &#add-device-modal,
+    &#friend-request-modal {
+        min-width: 352px;
+        --min-width: 352px;
+
+        @media screen and (min-width: 768px) {
+            --height: 190px;
+            --width: 352px;
+        }
+
+        ion-input {
+            margin-left: -6px;
+        }
+
+        ion-button {
+            margin: 0;
+        }
+    }
+
     ion-grid {
         padding: 0;
     }
@@ -111,20 +134,25 @@ ion-modal {
 ion-popover {
     --max-width: 186px;
 
-    &.account-max-devices-popover {
-        --max-width: 38px;
+    &.account-select-max-devices {
+        --max-width: 40px;
+    }
 
-        ion-item {
-            cursor: pointer;
-            --min-height: 32px;
+    &.account-select-max-friends {
+        --max-width: 50px;
+    }
 
-            ion-label {
-                margin-left: 14px;
-            }
+    &.account-select-max-devices ion-item,
+    &.account-select-max-friends ion-item {
+        cursor: pointer;
+        --min-height: 32px;
 
-            ion-radio {
-                margin-left: -38px;
-            }
+        ion-label {
+            margin-left: 14px;
+        }
+
+        ion-radio {
+            margin-left: -38px;
         }
     }
 
@@ -156,7 +184,7 @@ ion-toast {
     --max-width: 320px;
 
     &::part(button) {
-        margin: 6px -2px 0 0;
+        margin: 5px -2px 0 0;
     }
 
     &::part(container) {
@@ -171,32 +199,16 @@ ion-toolbar,
     max-width: 768px;
 }
 
+.active-link {
+    text-decoration: underline;
+}
+
 .badge {
-    z-index: -1;
+    cursor: pointer;
     position: absolute;
     padding: 6px;
     border-radius: 6px;
     background-color: var(--ion-color-primary);
-
-    &.device-verify-badge {
-        top: -6px;
-        right: 7px;
-    }
-
-    &.menu-badge {
-        top: 9px;
-        right: 4px;
-    }
-
-    &.menu-button-badge {
-        top: 8px;
-        left: 58px;
-    }
-
-    &.nav-button-badge {
-        top: 0;
-        right: 2px;
-    }
 }
 
 .d-flex {
@@ -225,7 +237,7 @@ ion-toolbar,
         }
 
         .page-grid {
-            margin: 0;
+            margin: 0 -2px;
             padding: 0;
 
             .title-row {

@@ -23,6 +23,10 @@ ion-header ion-toolbar {
 ion-footer ion-toolbar {
     padding: 0 8px 0 4px;
 
+    @media screen and (min-width: 768px) {
+        padding: 0;
+    }
+
     ion-grid {
         padding: 0;
 
@@ -69,10 +73,6 @@ ion-footer ion-toolbar {
     }
 }
 
-ion-label.active {
-    text-decoration: underline;
-}
-
 ion-menu {
     ion-icon,
     ion-title {
@@ -93,4 +93,21 @@ ion-menu {
 #disconnected {
     height: 100%;
     overflow-y: scroll;
+}
+
+.badge {
+    &.menu-badge {
+        top: 9px;
+        right: 4px;
+    }
+
+    &.menu-button-badge {
+        top: 8px;
+        left: 58px;
+    }
+
+    &.nav-button-badge {
+        top: 0;
+        right: 2px;
+    }
 }

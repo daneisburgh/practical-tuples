@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
     static connectionStatus: "Connecting" | "Connected" | "Disconnected" = "Connecting";
     static isCreatingAccount = false;
     static platformWidth = 0;
-    static showProgressBar = false;
+    static showProgressBar = true;
     static unableToConnectToast: HTMLIonToastElement;
     static readonly smallScreenWidth = 480;
 
@@ -159,7 +159,15 @@ export class AppComponent implements OnInit {
 
     displayBadge(route: RouteInfo) {
         if (route.url === "/account") {
-            return !!this.user.devices.find((device) => !device.isVerified);
+            const { devices, friendRequests, username } = this.user;
+            return (
+                devices.find((device) => !device.isVerified) ||
+                friendRequests.find(
+                    (friendRequest) =>
+                        friendRequest.requestee.username === username &&
+                        friendRequest.status === "Pending"
+                )
+            );
         }
     }
 
@@ -183,7 +191,6 @@ export class AppComponent implements OnInit {
             }
 
             this.title.setTitle("Practical Tuples" + (routeTitle ? ` | ${routeTitle}` : ""));
-            AppComponent.showProgressBar = false;
         }
     }
 }

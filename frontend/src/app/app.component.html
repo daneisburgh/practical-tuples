@@ -9,7 +9,7 @@
                 <span *ngFor="let route of routes">
                     <ion-button [routerLink]="route.url">
                         <ion-icon slot="start" [name]="route.icon"></ion-icon>
-                        <ion-label [ngClass]="{ active: route.url === routeUrl }">
+                        <ion-label [ngClass]="{ 'active-link': route.url === routeUrl }">
                             {{ route.label }}
                         </ion-label>
                     </ion-button>
@@ -32,7 +32,7 @@
                     (click)="menu.close()"
                 >
                     <ion-icon slot="start" [name]="route.icon"></ion-icon>
-                    <ion-label [ngClass]="{ active: route.url === routeUrl }">
+                    <ion-label [ngClass]="{ 'active-link': route.url === routeUrl }">
                         {{ route.label }}
                     </ion-label>
                     <span *ngIf="displayBadge(route)" class="badge menu-button-badge"></span>
