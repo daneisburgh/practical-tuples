@@ -4,14 +4,14 @@ updates:
       target-branch: "develop"
       directory: "/"
       schedule:
-          interval: "daily"
+          interval: "monthly"
       commit-message:
           prefix: "ci"
     - package-ecosystem: "npm"
       target-branch: "develop"
       directory: "/"
       schedule:
-          interval: "daily"
+          interval: "monthly"
       versioning-strategy: "increase"
       ignore:
           - dependency-name: "*"
@@ -24,7 +24,7 @@ updates:
       target-branch: "develop"
       directory: "/backend"
       schedule:
-          interval: "daily"
+          interval: "monthly"
       versioning-strategy: "increase"
       ignore:
           - dependency-name: "*"
@@ -37,7 +37,7 @@ updates:
       target-branch: "develop"
       directory: "/frontend"
       schedule:
-          interval: "daily"
+          interval: "monthly"
       versioning-strategy: "increase"
       ignore:
           - dependency-name: "*"
