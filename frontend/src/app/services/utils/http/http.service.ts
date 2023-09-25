@@ -33,29 +33,27 @@ export class HttpService {
         return this.webSocketService.connectionId;
     }
 
-    async delete(route: string) {
-        return this.request(RequestType.delete, route);
+    async delete(route: string, doNotShowProgressBar?: boolean) {
+        return this.request(RequestType.delete, route, doNotShowProgressBar);
     }
 
-    async patch(route: string, body?: any) {
-        return this.request(RequestType.patch, route, body);
+    async patch(route: string, body?: any, doNotShowProgressBar?: boolean) {
+        return this.request(RequestType.patch, route, body, doNotShowProgressBar);
     }
 
-    async post(route: string, body?: any) {
-        return this.request(RequestType.post, route, body);
+    async post(route: string, body?: any, doNotShowProgressBar?: boolean) {
+        return this.request(RequestType.post, route, body, doNotShowProgressBar);
     }
 
-    async request(type: RequestType, route: string, body?: any) {
-        const resource = route.split("/")[1].slice(0, -1).split("-").join(" ");
-        const toastResource = resource !== "user" ? resource : "account";
+    async request(type: RequestType, route: string, body?: any, doNotShowProgressBar?: boolean) {
+        if (AppComponent.connectionStatus === "Connected" || route === "/users/connect") {
+            AppComponent.showProgressBar = AppComponent.showProgressBar || !doNotShowProgressBar;
+            let response;
+            const url = httpUrl + route;
+            const headers = await this.getHeaders();
+            console.log(logRequest, type.toUpperCase(), route, body ? body : "");
 
-        switch (AppComponent.connectionStatus) {
-            case "Connected":
-                let response;
-                const url = httpUrl + route;
-                const headers = await this.getHeaders();
-                console.log(logRequest, type.toUpperCase(), resource, body ? body : "");
-
+            try {
                 switch (type) {
                     case RequestType.delete:
                         response = await this.httpClient.delete(url, headers).toPromise();
@@ -67,22 +65,17 @@ export class HttpService {
                         response = await this.httpClient.post(url, body, headers).toPromise();
                         break;
                 }
+            } catch (error) {
+                AppComponent.showProgressBar =
+                    AppComponent.connectionStatus !== "Connected" && !doNotShowProgressBar;
+                throw error;
+            }
 
-                response = this.mapDateValues(response);
-                console.log(logResponse, type.toUpperCase(), resource, response ? response : "");
-                return response ?? true;
-            case "Connecting":
-                await this.toastService.present(
-                    "danger",
-                    `Cannot ${type} ${toastResource} while connecting. Please try again after you have connected.`
-                );
-                break;
-            case "Disconnected":
-                await this.toastService.present(
-                    "danger",
-                    `Cannot ${type} ${toastResource} while disconnected. Please connect to continue.`
-                );
-                break;
+            response = this.mapDateValues(response);
+            console.log(logResponse, type.toUpperCase(), route, response ? response : "");
+            AppComponent.showProgressBar =
+                AppComponent.connectionStatus !== "Connected" && !doNotShowProgressBar;
+            return response;
         }
     }
 

@@ -7,7 +7,6 @@ import { User, UsersService } from "../users/users.service";
 import { HttpService } from "../../utils/http/http.service";
 import { ToastService } from "../../utils/toast/toast.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
-import { AppComponent } from "../../../app.component";
 
 const route = "/tuples";
 
@@ -53,13 +52,11 @@ export class TuplesService {
             }
 
             await this.usersService.setUser(user);
-            this.usersService.changeEvent.emit("tuple");
+            this.usersService.changeEvent.emit();
         });
     }
 
     async create() {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.post(route);
 
@@ -73,13 +70,10 @@ export class TuplesService {
             console.error(error);
             await this.toastService.present("danger", "Unable to create a tuple");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     async update(id: number, tuple: Partial<Tuple>) {
         let updated = false;
-        AppComponent.showProgressBar = true;
 
         try {
             const response = await this.httpService.patch(`${route}/${id}`, tuple);
@@ -98,13 +92,10 @@ export class TuplesService {
             await this.toastService.present("danger", "Unable to update tuple");
         }
 
-        AppComponent.showProgressBar = false;
         return updated;
     }
 
     async delete(id: number) {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.delete(`${route}/${id}`);
 
@@ -118,13 +109,10 @@ export class TuplesService {
             console.error(error);
             await this.toastService.present("danger", "Unable to delete tuple");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     async reorder(id: number, reorderedTupleItems: TupleItem[]) {
         let reordered = false;
-        AppComponent.showProgressBar = true;
 
         for (const [tupleItemIndex, tupleItem] of reorderedTupleItems.entries()) {
             tupleItem.order = tupleItemIndex;
@@ -150,7 +138,6 @@ export class TuplesService {
             await this.toastService.present("danger", "Unable to reorder tuple items");
         }
 
-        AppComponent.showProgressBar = false;
         return reordered;
     }
 }

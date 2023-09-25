@@ -5,7 +5,6 @@ import { TuplesService } from "../tuples/tuples.service";
 import { UsersService } from "../users/users.service";
 import { HttpService } from "../../utils/http/http.service";
 import { ToastService } from "../../utils/toast/toast.service";
-import { AppComponent } from "../../../app.component";
 
 const route = "/tuple-items";
 
@@ -31,8 +30,6 @@ export class TupleItemsService {
     ) {}
 
     async create(tupleId: number, order: number) {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.post(route, { tupleId, order });
 
@@ -50,13 +47,9 @@ export class TupleItemsService {
             console.error(error);
             await this.toastService.present("danger", "Unable to create tuple item");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     async delete(tupleId: number, id: number) {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.delete(`${route}/${id}`);
 
@@ -69,13 +62,10 @@ export class TupleItemsService {
             console.error(error);
             await this.toastService.present("danger", "Unable to delete tuple item");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     async update(tupleId: number, id: number, tupleItem: Partial<TupleItem>) {
         let updated = false;
-        AppComponent.showProgressBar = true;
 
         try {
             const response = await this.httpService.patch(`${route}/${id}`, tupleItem);
@@ -94,7 +84,6 @@ export class TupleItemsService {
             await this.toastService.present("danger", `Unable to update tuple item`);
         }
 
-        AppComponent.showProgressBar = false;
         return updated;
     }
 }

@@ -7,7 +7,6 @@ import { StorageKey, StorageService } from "../../utils/storage/storage.service"
 import { ToastService } from "../../utils/toast/toast.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
 import { UsersService } from "../users/users.service";
-import { AppComponent } from "../../../app.component";
 
 const route = "/devices";
 
@@ -63,12 +62,12 @@ export class DevicesService {
                     );
                     this.usersService.logout();
                 } else if (user) {
-                    user.devices = user.devices.filter((d) => d.id !== deleteDevice.id);
+                    remove(user.devices, (d) => d.id !== deleteDevice.id);
                 }
             }
 
             await this.usersService.setUser(user);
-            this.usersService.changeEvent.emit("device");
+            this.usersService.changeEvent.emit();
         });
     }
 
@@ -76,10 +75,14 @@ export class DevicesService {
         let created = false;
 
         try {
-            const response = await this.httpService.post(route, {
-                deviceInfo: await CapacitorDevice.getInfo(),
-                username
-            });
+            const response = await this.httpService.post(
+                route,
+                {
+                    deviceInfo: await CapacitorDevice.getInfo(),
+                    username
+                },
+                true
+            );
 
             if (response) {
                 await this.storageService.set(StorageKey.requestId, response.requestId);
@@ -100,9 +103,8 @@ export class DevicesService {
 
             switch (message) {
                 case "Username not found":
-                case "Account has maximum allowed devices":
                 case "Device already associated with account":
-                case "Device associated with another account":
+                case "Account has maximum allowed devices":
                     errorMessage = message;
                     break;
             }
@@ -114,8 +116,6 @@ export class DevicesService {
     }
 
     async delete(id: string) {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.delete(`${route}/${id}`);
 
@@ -128,13 +128,9 @@ export class DevicesService {
             console.error(error);
             await this.toastService.present("danger", "Unable to delete device");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     async verify(id: string) {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.patch(`${route}/${id}`, { isVerified: true });
 
@@ -147,8 +143,6 @@ export class DevicesService {
             console.error(error);
             await this.toastService.present("danger", "Unable to verify device");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     private async setDeviceId() {
