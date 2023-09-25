@@ -1,5 +1,5 @@
 import { Component, HostListener, ViewChild } from "@angular/core";
-import { AlertController, IonModal } from "@ionic/angular";
+import { AlertController, IonInput, IonModal } from "@ionic/angular";
 
 import { AppComponent } from "../../app.component";
 import { DevicesService } from "../../services/resources/devices/devices.service";
@@ -13,15 +13,11 @@ import { UsersService } from "../../services/resources/users/users.service";
 })
 export class HomePage {
     @ViewChild("addDeviceModal") addDeviceModal: IonModal;
+    @ViewChild("input") inputElement: IonInput;
 
     addDeviceToAccountUsername = "";
-    deletingTupleId = -1;
     isAddingDeviceToAccount = false;
-    isCreatingTuple = false;
-    isDeletingTuple = false;
     isPresentingAddDeviceToAccountModal = false;
-    isRefreshingAccount = false;
-    updatingTupleId = -1;
 
     constructor(
         private alertController: AlertController,
@@ -29,17 +25,6 @@ export class HomePage {
         private tuplesService: TuplesService,
         private usersService: UsersService
     ) {}
-
-    get isInputDisabled() {
-        return (
-            this.deletingTupleId > -1 ||
-            this.isCreatingAccount ||
-            this.isCreatingTuple ||
-            this.isRefreshingAccount ||
-            this.updatingTupleId > -1 ||
-            this.isAddingDeviceToAccount
-        );
-    }
 
     get isCreatingAccount() {
         return AppComponent.isCreatingAccount;
@@ -49,8 +34,16 @@ export class HomePage {
         return this.usersService.requestId;
     }
 
+    get showProgressBar() {
+        return AppComponent.showProgressBar;
+    }
+
     get user() {
         return this.usersService.user;
+    }
+
+    get isUserConnecting() {
+        return this.usersService.isConnecting;
     }
 
     @HostListener("document:keydown", ["$event"])
@@ -112,9 +105,7 @@ export class HomePage {
     }
 
     async createTuple() {
-        this.isCreatingTuple = true;
         await this.tuplesService.create();
-        this.isCreatingTuple = false;
     }
 
     async deleteTuple(id: number) {
@@ -126,11 +117,7 @@ export class HomePage {
                         text: "Delete",
                         cssClass: "alert-button-danger",
                         handler: async () => {
-                            this.isDeletingTuple = true;
-                            this.deletingTupleId = id;
                             await this.tuplesService.delete(id);
-                            this.deletingTupleId = -1;
-                            this.isDeletingTuple = false;
                         }
                     },
                     {
@@ -159,15 +146,20 @@ export class HomePage {
         return AppComponent.getDateString(tuple.updatedAt);
     }
 
-    isUpdatingTuple(tuple: Tuple) {
-        return this.updatingTupleId === tuple.id;
+    handleIonModalWillPresent() {
+        this.isPresentingAddDeviceToAccountModal = true;
+        this.inputElementFocus();
     }
 
     async refreshAccount() {
-        this.isRefreshingAccount = true;
-        AppComponent.showProgressBar = true;
         await this.usersService.connect();
-        this.isRefreshingAccount = false;
-        AppComponent.showProgressBar = false;
+    }
+
+    private inputElementFocus() {
+        setTimeout(() => {
+            if (this.inputElement) {
+                this.inputElement.setFocus();
+            }
+        }, 500);
     }
 }

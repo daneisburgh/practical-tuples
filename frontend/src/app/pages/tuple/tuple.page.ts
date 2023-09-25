@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { AlertController, Platform } from "@ionic/angular";
+import { AlertController } from "@ionic/angular";
 import { merge, orderBy, toInteger } from "lodash";
 import { Subscription } from "rxjs";
 
@@ -21,56 +21,25 @@ import { AppComponent } from "src/app/app.component";
 export class TuplePage implements OnInit, OnDestroy {
     @ViewChild("input") inputElement: ElementRef;
 
-    isCreatingTupleItem = false;
-    isDeletingTuple = false;
-    isDeletingTupleItem = false;
-    isUpdatingTupleName = false;
-    isUpdatingTupleType = false;
-    isUpdatingTupleItemChecked = false;
-    isUpdatingTupleItemOrder = false;
-    isUpdatingTupleItemName = false;
+    canUpdateTupleItemChecked = true;
     showTupleNameInput = false;
     showTupleItemNameInputId = -1;
     tuple: Tuple;
     tupleName: string;
     tupleNameInput: string;
     tupleItemNameInput: string;
-    updatingTupleItemId = -1;
 
     private usersServiceChangeEventSubscription: Subscription;
 
     constructor(
         private activatedRoute: ActivatedRoute,
         private alertController: AlertController,
-        private platform: Platform,
         private router: Router,
         private toastService: ToastService,
         private tuplesService: TuplesService,
         private tupleItemsService: TupleItemsService,
         private usersService: UsersService
     ) {}
-
-    get hideTupleEndButtons() {
-        return this.platform.width() < 768 && this.showTupleNameInput;
-    }
-
-    get isAddingTupleItem() {
-        return this.isCreatingTupleItem && this.updatingTupleItemId === -1;
-    }
-
-    get isInputDisabled() {
-        return (
-            this.isCreatingTupleItem ||
-            this.isDeletingTuple ||
-            this.isUpdatingTupleName ||
-            this.isUpdatingTupleType ||
-            this.isUpdatingTupleItemOrder ||
-            this.isUpdatingTupleItemName ||
-            this.updatingTupleItemId > -1 ||
-            this.showTupleItemNameInputId > -1 ||
-            this.showTupleNameInput
-        );
-    }
 
     get isConnected() {
         return AppComponent.connectionStatus === "Connected";
@@ -80,8 +49,8 @@ export class TuplePage implements OnInit, OnDestroy {
         return this.tuple.type === TupleType.checkbox;
     }
 
-    get showTuplePopoverTrigger() {
-        return !this.isDeletingTuple && !this.isUpdatingTupleName && !this.isUpdatingTupleType;
+    get showProgressBar() {
+        return AppComponent.showProgressBar;
     }
 
     get user() {
@@ -118,21 +87,15 @@ export class TuplePage implements OnInit, OnDestroy {
     }
 
     async createTupleItem(afterTupleItem?: TupleItem) {
-        this.isCreatingTupleItem = true;
-
         const { id, tupleItems } = this.tuple;
         let order = tupleItems.length;
 
         if (afterTupleItem) {
             const afterTupleItemId = afterTupleItem.id;
-            this.updatingTupleItemId = afterTupleItemId;
             order = tupleItems.findIndex((tupleItem) => tupleItem.id === afterTupleItemId) + 1;
         }
 
         await this.tupleItemsService.create(id, order);
-
-        this.isCreatingTupleItem = false;
-        this.updatingTupleItemId = -1;
     }
 
     async deleteTuple() {
@@ -144,9 +107,7 @@ export class TuplePage implements OnInit, OnDestroy {
                         text: "Delete",
                         cssClass: "alert-button-danger",
                         handler: async () => {
-                            this.isDeletingTuple = true;
                             await this.tuplesService.delete(this.tuple.id);
-                            this.isDeletingTuple = false;
                         }
                     },
                     {
@@ -160,22 +121,18 @@ export class TuplePage implements OnInit, OnDestroy {
     }
 
     async deleteTupleItem(id: number) {
-        this.isDeletingTupleItem = true;
-        this.updatingTupleItemId = id;
         await this.tupleItemsService.delete(this.tuple.id, id);
-        this.isDeletingTupleItem = false;
-        this.updatingTupleItemId = -1;
     }
 
     handleInputElementFocusOut() {
         setTimeout(() => {
-            if (this.showTupleNameInput && !this.isUpdatingTupleName) {
+            if (this.showTupleNameInput) {
                 if (this.tuple.name === this.tupleNameInput) {
                     this.showTupleNameInput = false;
                 } else {
                     this.updateTupleName();
                 }
-            } else if (this.showTupleItemNameInputId > -1 && !this.isUpdatingTupleItemName) {
+            } else if (this.showTupleItemNameInputId > -1) {
                 const tupleItemIndex = this.tuple.tupleItems.findIndex(
                     (tupleItem) => tupleItem.id === this.showTupleItemNameInputId
                 );
@@ -189,29 +146,14 @@ export class TuplePage implements OnInit, OnDestroy {
         }, 100);
     }
 
-    isUpdatingTupleItem(tupleItemId: number) {
-        return this.updatingTupleItemId === tupleItemId;
-    }
-
-    isUpdatingTupleItemCheckbox(tupleItemId: number) {
-        return this.isUpdatingTupleItem(tupleItemId) && this.isUpdatingTupleItemChecked;
-    }
-
     async handleTupleItemReorder(event: any) {
         const previousTupleItems = JSON.parse(JSON.stringify(this.tuple.tupleItems));
         const reorderedTupleItems: TupleItem[] = event.detail.complete(this.tuple.tupleItems);
-
-        this.isUpdatingTupleItemOrder = true;
         const reordered = await this.tuplesService.reorder(this.tuple.id, reorderedTupleItems);
-        this.isUpdatingTupleItemOrder = false;
 
         if (!reordered) {
             this.tuple.tupleItems = previousTupleItems;
         }
-    }
-
-    showTupleItemPopoverTrigger(tupleItemId: number) {
-        return !this.isUpdatingTupleItem(tupleItemId) || this.isUpdatingTupleItemChecked;
     }
 
     showTupleItemNameInput(tupleItem: TupleItem) {
@@ -234,9 +176,7 @@ export class TuplePage implements OnInit, OnDestroy {
     async updateTupleItemChecked(tupleItemIndex: number) {
         const { id, isChecked } = this.tuple.tupleItems[tupleItemIndex];
 
-        if (!this.isUpdatingTupleItemChecked) {
-            this.isUpdatingTupleItemChecked = true;
-            this.updatingTupleItemId = id;
+        if (this.canUpdateTupleItemChecked) {
             const updated = await this.tupleItemsService.update(this.tuple.id, id, {
                 isChecked: !isChecked
             });
@@ -245,9 +185,6 @@ export class TuplePage implements OnInit, OnDestroy {
                 this.tuple.tupleItems[tupleItemIndex].isChecked = isChecked;
             }
         }
-
-        this.isUpdatingTupleItemChecked = false;
-        this.updatingTupleItemId = -1;
     }
 
     async updateTupleItemName(tupleItemIndex?: number) {
@@ -260,8 +197,6 @@ export class TuplePage implements OnInit, OnDestroy {
         const { id, name } = this.tuple.tupleItems[tupleItemIndex];
 
         if (name !== this.tupleItemNameInput) {
-            this.isUpdatingTupleItemName = true;
-            this.updatingTupleItemId = id;
             const updated = await this.tupleItemsService.update(this.tuple.id, id, {
                 name: this.tupleItemNameInput
             });
@@ -270,9 +205,6 @@ export class TuplePage implements OnInit, OnDestroy {
                 this.tuple.tupleItems[tupleItemIndex].name = this.tupleItemNameInput;
                 this.showTupleItemNameInputId = -1;
             }
-
-            this.isUpdatingTupleItemName = false;
-            this.updatingTupleItemId = -1;
         }
     }
 
@@ -280,21 +212,16 @@ export class TuplePage implements OnInit, OnDestroy {
         const { id, name } = this.tuple;
 
         if (name !== this.tupleNameInput) {
-            this.isUpdatingTupleName = true;
             const updated = await this.tuplesService.update(id, { name: this.tupleNameInput });
 
             if (updated) {
                 this.tuple.name = this.tupleNameInput;
                 this.showTupleNameInput = false;
             }
-
-            this.isUpdatingTupleName = false;
         }
     }
 
     async updateTupleType() {
-        this.isUpdatingTupleType = true;
-
         const { id, type } = this.tuple;
         const newType = type === TupleType.checkbox ? TupleType.list : TupleType.checkbox;
         const updated = await this.tuplesService.update(id, { type: newType });
@@ -302,8 +229,6 @@ export class TuplePage implements OnInit, OnDestroy {
         if (updated) {
             this.tuple.type = newType;
         }
-
-        this.isUpdatingTupleType = false;
     }
 
     private inputElementFocus() {
@@ -319,6 +244,7 @@ export class TuplePage implements OnInit, OnDestroy {
 
         if (!this.user) {
             await this.usersService.setUser();
+            this.tupleName = undefined;
         }
 
         if (this.user) {
@@ -329,7 +255,9 @@ export class TuplePage implements OnInit, OnDestroy {
                 this.tupleName = tuple.name;
 
                 if (this.tuple) {
+                    this.canUpdateTupleItemChecked = false;
                     merge(this.tuple, tuple);
+                    setTimeout(() => (this.canUpdateTupleItemChecked = true), 250);
                 } else {
                     this.tuple = tuple;
                 }

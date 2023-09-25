@@ -3,22 +3,26 @@
         *ngIf="!user || isCreatingAccount"
         class="page ion-justify-content-center ion-align-items-center"
     >
-        <ion-button *ngIf="!requestId" [disabled]="isInputDisabled" (click)="createAccount()">
+        <ion-button
+            *ngIf="!requestId || isUserConnecting"
+            [disabled]="showProgressBar"
+            (click)="createAccount()"
+        >
             Create a tuple
         </ion-button>
         <ion-button
-            *ngIf="requestId"
+            *ngIf="requestId && !isUserConnecting"
             class="ion-margin-bottom"
-            [disabled]="isInputDisabled"
+            [disabled]="showProgressBar"
             (click)="refreshAccount()"
         >
             Refresh account
         </ion-button>
         <ion-button
-            *ngIf="requestId"
+            *ngIf="requestId && !isUserConnecting"
             id="create-new-account"
             color="primary"
-            [disabled]="isInputDisabled"
+            [disabled]="showProgressBar"
             (click)="confirmCreateNewAccount()"
         >
             Create a new account
@@ -27,7 +31,7 @@
             id="add-device-modal-trigger"
             color="primary"
             fill="clear"
-            [disabled]="isInputDisabled"
+            [disabled]="showProgressBar"
         >
             Add this device to an existing account
         </ion-button>
@@ -36,7 +40,7 @@
             id="add-device-modal"
             reference="trigger"
             trigger="add-device-modal-trigger"
-            (ionModalWillPresent)="isPresentingAddDeviceToAccountModal = true"
+            (ionModalWillPresent)="handleIonModalWillPresent()"
             (ionModalDidDismiss)="addDeviceToAccountUsername = ''"
         >
             <ng-template>
@@ -59,7 +63,8 @@
                         <ion-row>
                             <ion-col size="8">
                                 <ion-input
-                                    maxlength="12"
+                                    #input
+                                    maxlength="9"
                                     placeholder="Input account username"
                                     [disabled]="isAddingDeviceToAccount"
                                     [(ngModel)]="addDeviceToAccountUsername"
@@ -88,7 +93,7 @@
         *ngIf="user && user.tuples.length === 0 && !isCreatingAccount"
         class="page ion-justify-content-center ion-align-items-center"
     >
-        <ion-button [disabled]="isInputDisabled" (click)="createTuple()">
+        <ion-button [disabled]="showProgressBar" (click)="createTuple()">
             Create a tuple
         </ion-button>
     </div>
@@ -99,17 +104,14 @@
                     <ion-card>
                         <ion-card-header>
                             <ion-card-title class="d-flex ion-align-items-center">
-                                <a
-                                    [routerLink]="isInputDisabled ? '' : '/tuple/' + tuple.id"
-                                    [ngClass]="{ disabled: isInputDisabled }"
-                                >
+                                <a [routerLink]="'/tuple/' + tuple.id">
                                     {{ tuple.name }}
                                 </a>
                                 <ion-button
                                     class="delete-button"
                                     color="danger"
                                     fill="clear"
-                                    [disabled]="isInputDisabled"
+                                    [disabled]="showProgressBar"
                                     (click)="deleteTuple(tuple.id)"
                                 >
                                     <ion-icon slot="icon-only" name="trash"></ion-icon>
@@ -130,11 +132,11 @@
                 <ion-col>
                     <ion-button
                         id="create-tuple-button"
-                        [disabled]="isInputDisabled"
+                        [disabled]="showProgressBar"
                         (click)="createTuple()"
                     >
                         <ion-icon slot="start" name="add"></ion-icon>
-                        Create a new tuple
+                        New tuple
                     </ion-button>
                 </ion-col>
             </ion-row>

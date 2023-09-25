@@ -12,30 +12,12 @@ ion-card-content {
     }
 }
 
-#add-device-modal {
-    min-width: 352px;
-    --min-width: 352px;
-
-    @media screen and (min-width: 768px) {
-        --height: 196px;
-        --width: 352px;
-    }
-
-    ion-input {
-        margin-left: -6px;
-    }
-
-    ion-button {
-        margin: 0;
-    }
-}
-
 #create-new-account {
     margin-bottom: 8px;
 }
 
 #create-tuple-button {
-    margin-left: 4px;
+    margin-left: 0;
 }
 
 .delete-button {

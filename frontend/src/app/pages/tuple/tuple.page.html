@@ -9,7 +9,7 @@
                     <input
                         #input
                         maxlength="20"
-                        [disabled]="isUpdatingTupleName"
+                        [disabled]="showProgressBar"
                         [value]="tuple.name"
                         [(ngModel)]="tupleNameInput"
                         (focusout)="handleInputElementFocusOut()"
@@ -18,7 +18,7 @@
                         class="icon-button save-button"
                         color="dark"
                         fill="clear"
-                        [disabled]="isUpdatingTupleName || tupleNameInput === tuple.name"
+                        [disabled]="showProgressBar || tupleNameInput === tuple.name"
                         (click)="updateTupleName()"
                     >
                         <ion-icon slot="icon-only" name="save"></ion-icon>
@@ -27,7 +27,7 @@
                         class="icon-button"
                         color="dark"
                         fill="clear"
-                        [disabled]="isUpdatingTupleName"
+                        [disabled]="showProgressBar"
                         (click)="showTupleNameInput = false"
                     >
                         <ion-icon slot="icon-only" name="close"></ion-icon>
@@ -39,12 +39,11 @@
                         class="icon-button"
                         color="dark"
                         fill="clear"
-                        [disabled]="isInputDisabled"
+                        [disabled]="showProgressBar"
                     >
                         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
                     </ion-button>
                     <ion-popover
-                        *ngIf="showTuplePopoverTrigger"
                         dismiss-on-select="true"
                         reference="trigger"
                         [trigger]="'tuple-popover-trigger-' + tuple.id"
@@ -76,11 +75,13 @@
             <ion-row *ngIf="tuple.tupleItems.length > 0" id="tuple-list-row">
                 <ion-col>
                     <ion-reorder-group
-                        [disabled]="isInputDisabled"
+                        [disabled]="showProgressBar"
                         (ionItemReorder)="handleTupleItemReorder($event)"
                     >
                         <ion-item
                             *ngFor="let tupleItem of tuple.tupleItems; let tupleItemIndex = index"
+                            class="item-multiple-inputs"
+                            button="false"
                         >
                             <ion-reorder
                                 *ngIf="tuple.tupleItems.length > 1"
@@ -90,7 +91,7 @@
                             <ion-checkbox
                                 *ngIf="isTupleTypeCheckbox"
                                 [checked]="tupleItem.isChecked"
-                                [disabled]="isInputDisabled || !isConnected"
+                                [disabled]="showProgressBar || !isConnected"
                                 (ionChange)="updateTupleItemChecked(tupleItemIndex)"
                             ></ion-checkbox>
                             <ion-label>
@@ -98,7 +99,7 @@
                                     *ngIf="!showTupleItemNameInput(tupleItem)"
                                     class="d-flex ion-align-items-center name-input"
                                     [ngClass]="{
-                                        disabled: isInputDisabled,
+                                        disabled: showProgressBar,
                                         'line-through': isTupleTypeCheckbox && tupleItem.isChecked
                                     }"
                                     (click)="toggleTupleItemNameInput(tupleItemIndex)"
@@ -112,7 +113,7 @@
                                     <input
                                         #input
                                         maxlength="20"
-                                        [disabled]="isUpdatingTupleItemName"
+                                        [disabled]="showProgressBar"
                                         [value]="tupleItem.name"
                                         [(ngModel)]="tupleItemNameInput"
                                         (focusout)="handleInputElementFocusOut()"
@@ -122,8 +123,7 @@
                                         color="dark"
                                         fill="clear"
                                         [disabled]="
-                                            isUpdatingTupleItemName ||
-                                            tupleItemNameInput === tupleItem.name
+                                            showProgressBar || tupleItemNameInput === tupleItem.name
                                         "
                                         (click)="updateTupleItemName(tupleItemIndex)"
                                     >
@@ -133,7 +133,7 @@
                                         class="icon-button"
                                         color="dark"
                                         fill="clear"
-                                        [disabled]="isUpdatingTupleItemName"
+                                        [disabled]="showProgressBar"
                                         (click)="showTupleItemNameInputId = -1"
                                     >
                                         <ion-icon slot="icon-only" name="close"></ion-icon>
@@ -145,12 +145,11 @@
                                 class="icon-button popover-trigger"
                                 color="dark"
                                 fill="clear"
-                                [disabled]="isInputDisabled"
+                                [disabled]="showProgressBar"
                             >
                                 <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
                             </ion-button>
                             <ion-popover
-                                *ngIf="showTupleItemPopoverTrigger(tupleItem.id)"
                                 dismiss-on-select="true"
                                 reference="trigger"
                                 [trigger]="'tuple-item-popover-trigger-' + tupleItem.id"
@@ -187,9 +186,9 @@
             </ion-row>
             <ion-row id="add-tuple-item-row">
                 <ion-col>
-                    <ion-button [disabled]="isInputDisabled" (click)="createTupleItem()">
+                    <ion-button [disabled]="showProgressBar" (click)="createTupleItem()">
                         <ion-icon slot="start" name="add"></ion-icon>
-                        Add an item
+                        New item
                     </ion-button>
                 </ion-col>
             </ion-row>
