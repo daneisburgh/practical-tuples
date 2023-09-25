@@ -52,12 +52,6 @@ export class DevicesService {
         await this.notifyConnections(device, connectionId, { deleteDevice: device });
     }
 
-    async findOne(id: string) {
-        return this.devicesRepository.findOne(id, {
-            relations: ["connection", "user", "user.devices"]
-        });
-    }
-
     async update(id: string, updateDeviceDto: UpdateDeviceDto, connectionId: string) {
         if (!(await this.devicesRepository.findOne(id))) {
             throw new BadRequestException("Device not found");
@@ -67,6 +61,12 @@ export class DevicesService {
         const device = await this.findOne(id);
         await this.notifyConnections(device, connectionId, { updateDevice: device });
         return device;
+    }
+
+    async findOne(id: string) {
+        return this.devicesRepository.findOne(id, {
+            relations: ["connection", "user", "user.devices"]
+        });
     }
 
     private async notifyConnections(device: Device, connectionId: string, data: object) {
