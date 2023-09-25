@@ -9,6 +9,8 @@ import { ConnectionsModule } from "./connections/connections.module";
 import { Connection } from "./connections/entities/connection.entity";
 import { DevicesModule } from "./devices/devices.module";
 import { Device } from "./devices/entities/device.entity";
+import { FriendRequestsModule } from "./friend-requests/friend-requests.module";
+import { FriendRequest } from "./friend-requests/entities/friend-request.entity";
 import { TuplesModule } from "./tuples/tuples.module";
 import { Tuple } from "./tuples/entities/tuple.entity";
 import { TupleItemsModule } from "./tuple-items/tuple-items.module";
@@ -22,7 +24,7 @@ import { User } from "./users/entities/user.entity";
         TypeOrmModule.forRootAsync({
             useFactory: async () =>
                 Object.assign(await getConnectionOptions(), {
-                    entities: [Connection, Device, Tuple, TupleItem, User],
+                    entities: [Connection, Device, FriendRequest, Tuple, TupleItem, User],
                     keepConnectionAlive: true
                 })
         }),
@@ -30,7 +32,8 @@ import { User } from "./users/entities/user.entity";
         UsersModule,
         TuplesModule,
         TupleItemsModule,
-        DevicesModule
+        DevicesModule,
+        FriendRequestsModule
     ],
     controllers: [AppController],
     providers: [AppService]
