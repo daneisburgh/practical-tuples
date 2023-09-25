@@ -1,39 +1,60 @@
-#devices-row,
-#friends-row {
-    > ion-col,
-    ion-grid {
+a {
+    color: var(--ion-text-color);
+}
+
+#section-row > ion-col,
+#section-row ion-grid {
+    padding: 0;
+}
+
+ion-card {
+    color: var(--ion-text-color);
+    padding: 12px 8px 10px;
+
+    @media screen and (min-width: 488px) {
+        padding-bottom: 0;
+    }
+}
+
+.badge.verify-badge {
+    top: -11px;
+    right: -2px;
+}
+
+.button-delete {
+    margin: -14px -4px 0;
+}
+
+.button-verify {
+    margin: -16px -4px 0;
+}
+
+.data-row {
+    padding: 0 8px;
+
+    ion-col {
         padding: 0;
-
-        #select-max-devices {
-            width: 32px;
-            margin: 0 8px 0 12px;
-            padding: 0;
-            display: inline-flex;
-        }
-
-        .section-title {
-            font-size: 18px;
-        }
+        min-height: 32px;
     }
 }
 
-#devices-row {
-    margin: 8px 0 16px;
+.section-title,
+.section-title a {
+    font-size: 18px;
+    padding-bottom: 0;
+}
 
-    .device-row {
-        padding: 0 8px;
+.section-title a {
+    cursor: pointer;
 
-        ion-col {
-            min-height: 40px;
-            padding: 0;
-
-            .button-delete-device {
-                margin: -12px -6px 0;
-            }
-        }
+    &:first-child {
+        margin-right: 8px;
     }
 }
 
-#add-friend-row ion-button {
-    margin: 0;
+.select-max-values {
+    width: 38px;
+    margin: 0 0 0 12px;
+    padding: 0;
+    display: inline-flex;
 }

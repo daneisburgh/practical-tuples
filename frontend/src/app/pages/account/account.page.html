@@ -8,7 +8,7 @@
                 <ion-col *ngIf="showUsernameInput" class="d-flex ion-align-items-center">
                     <input
                         #input
-                        maxlength="12"
+                        maxlength="9"
                         [disabled]="isUpdatingUsername"
                         [value]="user.username"
                         [(ngModel)]="usernameInput"
@@ -39,12 +39,11 @@
                         class="icon-button"
                         color="dark"
                         fill="clear"
-                        [disabled]="isInputDisabled"
+                        [disabled]="showProgressBar"
                     >
                         <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
                     </ion-button>
                     <ion-popover
-                        *ngIf="showAccountPopoverTrigger"
                         dismiss-on-select="true"
                         reference="trigger"
                         trigger="account-popover-trigger"
@@ -69,112 +68,321 @@
                     <hr />
                 </ion-col>
             </ion-row>
-            <ion-row id="devices-row">
+            <ion-row id="section-row">
                 <ion-col>
-                    <ion-grid>
-                        <ion-row>
-                            <ion-col class="section-title">Devices</ion-col>
-                            <ion-col class="d-flex ion-align-items-center ion-justify-content-end">
-                                Max devices:
-                                <ion-select
-                                    id="select-max-devices"
-                                    interface="popover"
-                                    [disabled]="isInputDisabled || !canUpdateMaxDevices"
-                                    [interfaceOptions]="{
-                                        cssClass: 'account-max-devices-popover'
-                                    }"
-                                    [(ngModel)]="maxDevices"
-                                    (ionChange)="updateMaxDevices()"
+                    <ion-card>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col class="section-title">Devices</ion-col>
+                                <ion-col
+                                    class="d-flex ion-align-items-center ion-justify-content-end"
                                 >
-                                    <ion-select-option
-                                        *ngFor="let value of maxDeviceValues"
-                                        [disabled]="value < user.devices.length"
-                                        [value]="value"
-                                        >{{ value }}
-                                    </ion-select-option>
-                                </ion-select>
-                            </ion-col>
-                        </ion-row>
-                        <ion-row>
-                            <ion-col>
-                                <hr class="hr-dark" />
-                            </ion-col>
-                        </ion-row>
-                        <ion-row class="device-row ion-align-items-start">
-                            <ion-col size="1">#</ion-col>
-                            <ion-col size="3">OS</ion-col>
-                            <ion-col size="3">Platform</ion-col>
-                            <ion-col size="3">Added</ion-col>
-                            <ion-col size="2"></ion-col>
-                        </ion-row>
-                        <ion-row
-                            *ngFor="let device of user.devices; let deviceIndex = index"
-                            class="device-row ion-align-items-start"
-                        >
-                            <ion-col size="1">{{ deviceIndex + 1 }}</ion-col>
-                            <ion-col size="3">
-                                {{ getDeviceInfoString(device.info.operatingSystem) }}
-                            </ion-col>
-                            <ion-col size="3">{{
-                                getDeviceInfoString(device.info.platform)
-                            }}</ion-col>
-                            <ion-col size="3">
-                                {{ getDeviceCreatedDateString(device.createdAt) }}
-                                <br *ngIf="isSmallScreen" />
-                                {{ getDeviceCreatedTimeString(device.createdAt) }}
-                            </ion-col>
-                            <ion-col size="2" class="ion-text-end">
-                                <ion-button
-                                    *ngIf="!device.isVerified"
-                                    class="icon-button button-delete-device"
-                                    color="dark"
-                                    fill="clear"
-                                    [disabled]="isInputDisabled"
-                                    (click)="verifyDevice(device.id)"
-                                >
-                                    <ion-icon name="shield-checkmark"></ion-icon>
-                                </ion-button>
-                                <span
-                                    *ngIf="!device.isVerified"
-                                    class="badge device-verify-badge"
-                                    [ngClass]="{ disabled: isInputDisabled }"
-                                ></span>
-                                <ion-button
-                                    *ngIf="device.isVerified"
-                                    [id]="'delete-device-popover-trigger-' + device.id"
-                                    class="icon-button"
-                                    color="danger"
-                                    fill="clear"
-                                    [disabled]="isInputDisabled || isCurrentDevice(device.id)"
-                                    (click)="deleteDevice(device.id)"
-                                >
-                                    <ion-icon color="danger" name="trash"></ion-icon>
-                                </ion-button>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
+                                    Max devices:
+                                    <ion-select
+                                        interface="popover"
+                                        class="select-max-values"
+                                        [disabled]="showProgressBar || !canUpdateMaxDevices"
+                                        [interfaceOptions]="{
+                                            cssClass: 'account-select-max-devices'
+                                        }"
+                                        [(ngModel)]="maxDevices"
+                                        (ionChange)="updateMaxDevices()"
+                                    >
+                                        <ion-select-option
+                                            *ngFor="let value of maxDeviceValues"
+                                            [disabled]="value < user.devices.length"
+                                            [value]="value"
+                                            >{{ value }}
+                                        </ion-select-option>
+                                    </ion-select>
+                                </ion-col>
+                            </ion-row>
+                            <ion-row>
+                                <ion-col>
+                                    <hr class="hr-dark" />
+                                </ion-col>
+                            </ion-row>
+                            <ion-row class="data-row data-header ion-align-items-start">
+                                <ion-col size="1">#</ion-col>
+                                <ion-col size="3">OS</ion-col>
+                                <ion-col size="3">Platform</ion-col>
+                                <ion-col size="4">Added</ion-col>
+                                <ion-col size="1"></ion-col>
+                            </ion-row>
+                            <ion-row
+                                *ngFor="let device of user.devices; let deviceIndex = index"
+                                class="data-row ion-align-items-start"
+                            >
+                                <ion-col size="1">{{ deviceIndex + 1 }}</ion-col>
+                                <ion-col size="3">
+                                    {{ getDeviceInfoString(device.info.operatingSystem) }}
+                                </ion-col>
+                                <ion-col size="3">
+                                    {{ getDeviceInfoString(device.info.platform) }}
+                                </ion-col>
+                                <ion-col size="4">
+                                    {{ getCreatedDateString(device.createdAt) }}
+                                    <br *ngIf="isSmallScreen" />
+                                    {{ getCreatedTimeString(device.createdAt) }}
+                                </ion-col>
+                                <ion-col size="1" class="ion-text-end">
+                                    <ion-button
+                                        *ngIf="!device.isVerified"
+                                        class="icon-button button-verify"
+                                        color="dark"
+                                        fill="clear"
+                                        [disabled]="showProgressBar"
+                                        (click)="verifyDevice(device.id)"
+                                    >
+                                        <ion-icon name="shield-checkmark"></ion-icon>
+                                    </ion-button>
+                                    <span
+                                        *ngIf="!device.isVerified"
+                                        class="badge verify-badge"
+                                        [ngClass]="{ disabled: showProgressBar }"
+                                        (click)="verifyDevice(device.id)"
+                                    ></span>
+                                    <ion-button
+                                        *ngIf="device.isVerified"
+                                        class="icon-button button-delete"
+                                        color="danger"
+                                        fill="clear"
+                                        [disabled]="showProgressBar || isCurrentDevice(device.id)"
+                                        (click)="deleteDevice(device.id)"
+                                    >
+                                        <ion-icon color="danger" name="trash"></ion-icon>
+                                    </ion-button>
+                                </ion-col>
+                            </ion-row>
+                        </ion-grid>
+                    </ion-card>
                 </ion-col>
             </ion-row>
-            <ion-row id="friends-row">
+            <ion-row id="section-row">
                 <ion-col>
-                    <ion-grid>
-                        <ion-row>
-                            <ion-col class="section-title">Friends</ion-col>
-                        </ion-row>
-                        <ion-row>
-                            <ion-col>
-                                <hr class="hr-dark" />
-                            </ion-col>
-                        </ion-row>
-                        <ion-row id="add-friend-row">
-                            <ion-col>
-                                <ion-button [disabled]="isInputDisabled">
-                                    <ion-icon slot="start" name="add"></ion-icon>
-                                    <ion-label>Add a friend</ion-label>
-                                </ion-button>
-                            </ion-col>
-                        </ion-row>
-                    </ion-grid>
+                    <ion-card>
+                        <ion-grid>
+                            <ion-row>
+                                <ion-col class="section-title">
+                                    <a
+                                        [ngClass]="{ 'active-link': friendsView === 'friends' }"
+                                        (click)="friendsView = 'friends'"
+                                        >Friends</a
+                                    >
+                                    <a
+                                        [ngClass]="{ 'active-link': friendsView === 'requests' }"
+                                        (click)="friendsView = 'requests'"
+                                        >Requests</a
+                                    >
+                                    <span *ngIf="userHasPendingFriendRequest" class="badge"></span>
+                                </ion-col>
+                                <ion-col
+                                    class="d-flex ion-align-items-center ion-justify-content-end"
+                                >
+                                    Max friends:
+                                    <ion-select
+                                        interface="popover"
+                                        class="select-max-values"
+                                        [disabled]="showProgressBar || !canUpdateMaxFriends"
+                                        [interfaceOptions]="{
+                                            cssClass: 'account-select-max-friends'
+                                        }"
+                                        [(ngModel)]="maxFriends"
+                                        (ionChange)="updateMaxFriends()"
+                                    >
+                                        <ion-select-option
+                                            *ngFor="let value of maxFriendValues"
+                                            [disabled]="value < user.friends.length"
+                                            [value]="value"
+                                            >{{ value }}
+                                        </ion-select-option>
+                                    </ion-select>
+                                </ion-col>
+                            </ion-row>
+                            <ion-row>
+                                <ion-col>
+                                    <hr class="hr-dark" />
+                                </ion-col>
+                            </ion-row>
+                            <span *ngIf="friendsView === 'friends'">
+                                <ion-row
+                                    *ngIf="user.friends.length === 0"
+                                    class="data-row ion-align-items-start ion-margin-bottom"
+                                >
+                                    Friends will be displayed here
+                                </ion-row>
+                                <ion-row
+                                    *ngIf="user.friends.length > 0"
+                                    class="data-row data-header ion-align-items-start"
+                                >
+                                    <ion-col size="1">#</ion-col>
+                                    <ion-col size="6">User</ion-col>
+                                    <ion-col size="4">Added</ion-col>
+                                    <ion-col size="1"></ion-col>
+                                </ion-row>
+                                <ion-row
+                                    *ngFor="let friend of user.friends; let friendIndex = index"
+                                    class="data-row ion-align-items-start"
+                                >
+                                    <ion-col size="1">{{ friendIndex + 1 }}</ion-col>
+                                    <ion-col size="6">{{ friend.username }}</ion-col>
+                                    <ion-col size="4">
+                                        {{ getCreatedDateString(friend.updatedAt) }}
+                                        <br *ngIf="isSmallScreen" />
+                                        {{ getCreatedTimeString(friend.updatedAt) }}
+                                    </ion-col>
+                                    <ion-col size="1" class="ion-text-end">
+                                        <ion-button
+                                            class="icon-button button-delete"
+                                            color="danger"
+                                            fill="clear"
+                                            [disabled]="showProgressBar"
+                                            (click)="deleteFriendRequest(friend.id)"
+                                        >
+                                            <ion-icon color="danger" name="trash"></ion-icon>
+                                        </ion-button>
+                                    </ion-col>
+                                </ion-row>
+                            </span>
+                            <span *ngIf="friendsView === 'requests'">
+                                <ion-row
+                                    *ngIf="user.friendRequests.length === 0"
+                                    class="data-row ion-align-items-start ion-margin-bottom"
+                                >
+                                    Pending and rejected friend requests will be displayed here
+                                </ion-row>
+                                <ion-row
+                                    *ngIf="user.friendRequests.length > 0"
+                                    class="data-row data-header ion-align-items-start"
+                                >
+                                    <ion-col size="1">#</ion-col>
+                                    <ion-col size="3">From</ion-col>
+                                    <ion-col size="3">To</ion-col>
+                                    <ion-col size="4">Sent</ion-col>
+                                    <ion-col size="1"></ion-col>
+                                </ion-row>
+                                <ion-row
+                                    *ngFor="
+                                        let friendRequest of user.friendRequests;
+                                        let friendRequestIndex = index
+                                    "
+                                    class="data-row ion-align-items-start"
+                                >
+                                    <ion-col size="1">{{ friendRequestIndex + 1 }}</ion-col>
+                                    <ion-col size="3">
+                                        {{
+                                            isUserRequestee(friendRequest)
+                                                ? friendRequest.requester.username
+                                                : "You"
+                                        }}
+                                    </ion-col>
+                                    <ion-col size="3">
+                                        {{
+                                            isUserRequestee(friendRequest)
+                                                ? "You"
+                                                : friendRequest.requestee.username
+                                        }}
+                                    </ion-col>
+                                    <ion-col size="4">
+                                        {{ getCreatedDateString(friendRequest.createdAt) }}
+                                        <br *ngIf="isSmallScreen" />
+                                        {{ getCreatedTimeString(friendRequest.createdAt) }}
+                                    </ion-col>
+                                    <ion-col size="1" class="ion-text-end">
+                                        <ion-button
+                                            *ngIf="isUserRequestee(friendRequest)"
+                                            class="icon-button button-verify"
+                                            color="dark"
+                                            fill="clear"
+                                            [disabled]="showProgressBar"
+                                            (click)="updateFriendRequestAcceptance(friendRequest)"
+                                        >
+                                            <ion-icon name="shield-checkmark"></ion-icon>
+                                        </ion-button>
+                                        <span
+                                            *ngIf="
+                                                isUserRequestee(friendRequest) &&
+                                                friendRequest.status === 'Pending'
+                                            "
+                                            class="badge verify-badge"
+                                            [ngClass]="{ disabled: showProgressBar }"
+                                            (click)="updateFriendRequestAcceptance(friendRequest)"
+                                        ></span>
+                                        <ion-button
+                                            *ngIf="!isUserRequestee(friendRequest)"
+                                            class="icon-button button-delete"
+                                            color="danger"
+                                            fill="clear"
+                                            [disabled]="showProgressBar"
+                                            (click)="deleteFriendRequest(friendRequest.id)"
+                                        >
+                                            <ion-icon color="danger" name="trash"></ion-icon>
+                                        </ion-button>
+                                    </ion-col>
+                                </ion-row>
+                            </span>
+                        </ion-grid>
+                    </ion-card>
+                </ion-col>
+            </ion-row>
+            <ion-row>
+                <ion-col>
+                    <ion-button id="friend-request-modal-trigger" [disabled]="showProgressBar">
+                        <ion-icon slot="start" name="person-add"></ion-icon>
+                        <ion-label>New friend request</ion-label>
+                    </ion-button>
+                    <ion-modal
+                        #friendRequestModal
+                        id="friend-request-modal"
+                        reference="trigger"
+                        trigger="friend-request-modal-trigger"
+                        (ionModalWillPresent)="isPresentingFriendRequestModal = true"
+                        (ionModalDidDismiss)="friendRequestUsername = ''"
+                    >
+                        <ng-template>
+                            <ion-header translucent>
+                                <ion-toolbar>
+                                    <ion-title>New friend request</ion-title>
+                                    <ion-buttons slot="end">
+                                        <ion-button (click)="friendRequestModal.dismiss()">
+                                            <ion-icon slot="icon-only" name="close"></ion-icon>
+                                        </ion-button>
+                                    </ion-buttons>
+                                </ion-toolbar>
+                                <ion-progress-bar
+                                    *ngIf="isSendingFriendRequest"
+                                    type="indeterminate"
+                                ></ion-progress-bar>
+                            </ion-header>
+                            <ion-content fullscreen class="ion-padding">
+                                <ion-grid>
+                                    <ion-row>
+                                        <ion-col size="8">
+                                            <ion-input
+                                                maxlength="9"
+                                                placeholder="Input account username"
+                                                [disabled]="isSendingFriendRequest"
+                                                [(ngModel)]="friendRequestUsername"
+                                            ></ion-input>
+                                        </ion-col>
+                                    </ion-row>
+                                    <ion-row>
+                                        <ion-col>
+                                            <ion-button
+                                                [disabled]="
+                                                    friendRequestUsername.length === 0 ||
+                                                    isSendingFriendRequest
+                                                "
+                                                (click)="sendFriendRequest()"
+                                            >
+                                                Send
+                                            </ion-button>
+                                        </ion-col>
+                                    </ion-row>
+                                </ion-grid>
+                            </ion-content>
+                        </ng-template>
+                    </ion-modal>
                 </ion-col>
             </ion-row>
         </ion-grid>

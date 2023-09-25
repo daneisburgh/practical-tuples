@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
 import { Device as CapacitorDevice } from "@capacitor/device";
-import { merge, orderBy } from "lodash";
+import { orderBy } from "lodash";
 
 import { Device } from "../devices/devices.service";
 import { Tuple } from "../tuples/tuples.service";
@@ -9,7 +9,7 @@ import { HttpService } from "../../utils/http/http.service";
 import { StorageKey, StorageService } from "../../utils/storage/storage.service";
 import { ToastService } from "../../utils/toast/toast.service";
 import { WebSocketService } from "../../utils/websocket/websocket.service";
-import { AppComponent } from "../../../app.component";
+import { FriendRequest } from "../friend-requests/friend-requests.service";
 
 const route = "/users";
 
@@ -19,9 +19,12 @@ export type User = {
     username: string;
     requestId: string;
     isOnline: boolean;
+    friends: (Pick<FriendRequest, "id" | "updatedAt"> & Pick<User, "username">)[];
+    friendRequests: FriendRequest[];
     tuples: Tuple[];
     devices: Device[];
     maxDevices: number;
+    maxFriends: number;
 };
 
 @Injectable({
@@ -29,7 +32,8 @@ export type User = {
 })
 export class UsersService {
     connectionEvent = new EventEmitter<void>();
-    changeEvent = new EventEmitter<"device" | "tuple" | "user">();
+    changeEvent = new EventEmitter<void>();
+    isConnecting = false;
     requestId: string;
     user?: User;
 
@@ -46,7 +50,6 @@ export class UsersService {
 
         this.webSocketService.connectionEvent.subscribe((event) => {
             if (event === "connectionId") {
-                AppComponent.connectionStatus = "Connected";
                 this.connect();
             }
         });
@@ -56,7 +59,6 @@ export class UsersService {
 
             if (updateUser) {
                 await this.setUser(updateUser);
-                this.changeEvent.emit("user");
             } else if (deleteUser) {
                 this.logout();
             }
@@ -64,6 +66,7 @@ export class UsersService {
     }
 
     async connect() {
+        this.isConnecting = true;
         this.requestId = await this.storageService.get(StorageKey.requestId);
 
         if (this.unableToLogInToast) {
@@ -76,26 +79,27 @@ export class UsersService {
                 await this.setUser(user);
             } catch (error) {
                 console.error(error);
-                this.unableToLogInToast = await this.toastService.present(
-                    "danger",
-                    `Unable to log in to the account associated with this device.
-                    Please refresh to try again.`
-                );
+                let errorMessage = `Unable to log in to the account associated with this device.
+                Please refresh to try again.`;
+
+                if (error.error.message === "Invalid device") {
+                    this.logout();
+                    errorMessage =
+                        "This device has been removed from the account by another device";
+                }
+
+                this.unableToLogInToast = await this.toastService.present("danger", errorMessage);
             }
         } else if (this.user) {
-            await this.toastService.present(
-                "danger",
-                "This device has been removed from the account by another device"
-            );
             this.logout();
         }
 
+        this.isConnecting = false;
         this.connectionEvent.emit();
     }
 
     async create() {
         let created = false;
-        AppComponent.showProgressBar = true;
 
         try {
             const response = await this.httpService.post(route, {
@@ -112,13 +116,10 @@ export class UsersService {
             await this.toastService.present("danger", "Unable to create an account");
         }
 
-        AppComponent.showProgressBar = false;
         return created;
     }
 
     async delete() {
-        AppComponent.showProgressBar = true;
-
         try {
             const response = await this.httpService.delete(route);
 
@@ -129,13 +130,10 @@ export class UsersService {
             console.error(error);
             await this.toastService.present("danger", "Unable to delete account");
         }
-
-        AppComponent.showProgressBar = false;
     }
 
     async update(user: Partial<User>) {
         let updated = false;
-        AppComponent.showProgressBar = true;
 
         try {
             const response = await this.httpService.patch(route, user);
@@ -162,7 +160,6 @@ export class UsersService {
             await this.toastService.present("danger", errorMessage);
         }
 
-        AppComponent.showProgressBar = false;
         return updated;
     }
 
@@ -172,9 +169,11 @@ export class UsersService {
         await this.storageService.remove(StorageKey.requestId);
         await this.storageService.remove(StorageKey.user);
         this.router.navigateByUrl("/");
+        this.changeEvent.emit();
     }
 
     async setUser(user?: User) {
+        console.log(user);
         if (!user) {
             const userString = await this.storageService.get(StorageKey.user);
             user = userString ? JSON.parse(userString) : undefined;
@@ -183,19 +182,23 @@ export class UsersService {
         if (user) {
             user = this.httpService.mapDateValues(user);
             user.devices = orderBy(user.devices, "createdAt", "asc");
-            user.tuples = orderBy(user.tuples, "createdAt", "desc");
+            user.tuples = orderBy(user.tuples, "updatedAt", "desc");
+            user.friends = orderBy(user.friends, "updatedAt", "desc");
+            user.friendRequests = orderBy(user.friendRequests, "createdAt", "desc");
 
             for (const tuple of user.tuples) {
                 tuple.tupleItems = orderBy(tuple.tupleItems, "order", "asc");
             }
 
-            if (this.user) {
-                merge(this.user, user);
-            } else {
-                this.user = user;
-            }
+            // if (this.user) {
+            //     merge(this.user, user);
+            // } else {
+            //     this.user = user;
+            // }
+            this.user = user;
 
             await this.storageService.set(StorageKey.user, JSON.stringify(user));
+            this.changeEvent.emit();
         }
     }
 }

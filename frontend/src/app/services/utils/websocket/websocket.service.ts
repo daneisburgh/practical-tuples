@@ -2,9 +2,10 @@ import { EventEmitter, Injectable } from "@angular/core";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
 import { Device } from "../../resources/devices/devices.service";
+import { FriendRequest } from "../../resources/friend-requests/friend-requests.service";
 import { Tuple } from "../../resources/tuples/tuples.service";
-import { environment } from "../../../../environments/environment";
 import { User } from "../../resources/users/users.service";
+import { environment } from "../../../../environments/environment";
 
 type ReceivedBody = {
     action: string;
@@ -13,6 +14,11 @@ type ReceivedBody = {
         createDevice: Device;
         updateDevice: Device;
         deleteDevice: { id: string };
+    };
+    friendRequest: {
+        createFriendRequest: FriendRequest;
+        updateFriendRequest: FriendRequest;
+        deleteFriendRequest: { id: string };
     };
     message: string;
     tuple: {
@@ -32,6 +38,7 @@ type ReceivedBody = {
 export class WebSocketService {
     connectionEvent = new EventEmitter<"connected" | "connectionId" | "disconnected">();
     deviceEvent = new EventEmitter<ReceivedBody["device"]>();
+    friendRequestEvent = new EventEmitter<ReceivedBody["friendRequest"]>();
     tupleEvent = new EventEmitter<ReceivedBody["tuple"]>();
     userEvent = new EventEmitter<ReceivedBody["user"]>();
     connectionId?: string;
@@ -69,20 +76,18 @@ export class WebSocketService {
 
     private async receive(body: ReceivedBody) {
         console.log("RECEIVE", body);
-        const { action, connectionId, device, message, tuple, user } = body;
+        const { action, connectionId, device, friendRequest, message, tuple, user } = body;
 
-        if (action) {
-            switch (action) {
-                case "pong":
-                    this.pingPong();
-                    break;
-            }
+        if (action === "pong") {
+            this.pingPong();
         } else if (connectionId && message !== "Internal server error") {
             this.connectionId = connectionId;
             this.connectionEvent.emit("connectionId");
             this.pingPong();
         } else if (device) {
             this.deviceEvent.emit(device);
+        } else if (friendRequest) {
+            this.friendRequestEvent.emit(friendRequest);
         } else if (tuple) {
             this.tupleEvent.emit(tuple);
         } else if (user) {

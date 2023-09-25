@@ -1,13 +1,16 @@
 import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from "@angular/core";
-import { AlertController } from "@ionic/angular";
+import { AlertController, IonModal } from "@ionic/angular";
 import { upperFirst } from "lodash";
 import { Subscription } from "rxjs";
 
 import { AppComponent } from "../../app.component";
 import { DevicesService } from "../../services/resources/devices/devices.service";
+import {
+    FriendRequest,
+    FriendRequestsService
+} from "../../services/resources/friend-requests/friend-requests.service";
 import { UsersService } from "../../services/resources/users/users.service";
 import { StorageKey, StorageService } from "../../services/utils/storage/storage.service";
-import { ToastService } from "../../services/utils/toast/toast.service";
 
 @Component({
     selector: "app-account",
@@ -15,18 +18,22 @@ import { ToastService } from "../../services/utils/toast/toast.service";
     styleUrls: ["./account.page.scss"]
 })
 export class AccountPage implements OnInit, OnDestroy {
+    @ViewChild("friendRequestModal") friendRequestModal: IonModal;
     @ViewChild("input") inputElement: ElementRef;
 
-    readonly maxDeviceValues = [1, 2, 3];
+    readonly maxDeviceValues = Array.from({ length: 5 }, (_, i) => i + 1);
+    readonly maxFriendValues = Array.from({ length: 11 }, (_, i) => i);
 
     canUpdateMaxDevices = true;
+    canUpdateMaxFriends = true;
     currentDeviceId: string;
-    isDeletingDevice = false;
-    isDeletingUser = false;
-    isUpdatingMaxDevices = false;
+    friendRequestUsername = "";
+    friendsView: "friends" | "requests" = "friends";
+    isPresentingFriendRequestModal = false;
+    isSendingFriendRequest = false;
     isUpdatingUsername = false;
-    isVerifyingDevice = false;
     maxDevices: number;
+    maxFriends: number;
     showUsernameInput = false;
     updatingDeviceId: string;
     usernameInput: string;
@@ -36,31 +43,29 @@ export class AccountPage implements OnInit, OnDestroy {
     constructor(
         private alertController: AlertController,
         private devicesService: DevicesService,
+        private friendRequestsService: FriendRequestsService,
         private storageService: StorageService,
-        private toastService: ToastService,
         private usersService: UsersService
     ) {}
-
-    get isInputDisabled() {
-        return (
-            this.isDeletingDevice ||
-            this.isDeletingUser ||
-            this.isUpdatingMaxDevices ||
-            this.isUpdatingUsername ||
-            this.isVerifyingDevice
-        );
-    }
 
     get isSmallScreen() {
         return AppComponent.isSmallScreen;
     }
 
-    get showAccountPopoverTrigger() {
-        return !this.isDeletingUser && !this.isUpdatingUsername;
+    get showProgressBar() {
+        return AppComponent.showProgressBar;
     }
 
     get user() {
         return this.usersService.user;
+    }
+
+    get userHasPendingFriendRequest() {
+        const { friendRequests, username } = this.user;
+        return friendRequests.find(
+            (friendRequest) =>
+                friendRequest.requestee.username === username && friendRequest.status === "Pending"
+        );
     }
 
     @HostListener("document:keydown", ["$event"])
@@ -87,13 +92,19 @@ export class AccountPage implements OnInit, OnDestroy {
     ngOnInit() {
         this.setData();
         this.usersServiceChangeEventSubscription = this.usersService.changeEvent.subscribe(() => {
-            if (this.user && this.maxDevices !== this.user.maxDevices) {
-                this.canUpdateMaxDevices = false;
-                this.maxDevices = this.user.maxDevices;
+            console.log(this.user);
+            if (this.user) {
+                if (this.maxDevices !== this.user.maxDevices) {
+                    this.canUpdateMaxDevices = false;
+                    this.maxDevices = this.user.maxDevices;
+                    setTimeout(() => (this.canUpdateMaxDevices = true), 250);
+                }
 
-                setTimeout(() => {
-                    this.canUpdateMaxDevices = true;
-                }, 250);
+                if (this.maxFriends !== this.user.maxFriends) {
+                    this.canUpdateMaxFriends = false;
+                    this.maxFriends = this.user.maxFriends;
+                    setTimeout(() => (this.canUpdateMaxFriends = true), 250);
+                }
             }
         });
     }
@@ -107,7 +118,29 @@ export class AccountPage implements OnInit, OnDestroy {
                         text: "Delete",
                         cssClass: "alert-button-danger",
                         handler: async () => {
-                            await this.confirmedDeleteDevice(id);
+                            await this.devicesService.delete(id);
+                        }
+                    },
+                    {
+                        text: "Cancel",
+                        role: "cancel",
+                        cssClass: "alert-button-cancel"
+                    }
+                ]
+            })
+        ).present();
+    }
+
+    async deleteFriendRequest(id: string) {
+        (
+            await this.alertController.create({
+                message: "Please confirm friend request deletion. This action is irreversible.",
+                buttons: [
+                    {
+                        text: "Delete",
+                        cssClass: "alert-button-danger",
+                        handler: async () => {
+                            await this.friendRequestsService.delete(id);
                         }
                     },
                     {
@@ -129,9 +162,7 @@ export class AccountPage implements OnInit, OnDestroy {
                         text: "Delete",
                         cssClass: "alert-button-danger",
                         handler: async () => {
-                            this.isDeletingUser = true;
                             await this.usersService.delete();
-                            this.isDeletingUser = false;
                         }
                     },
                     {
@@ -152,11 +183,15 @@ export class AccountPage implements OnInit, OnDestroy {
         return this.updatingDeviceId === id;
     }
 
-    getDeviceCreatedDateString(createdAt: Date) {
+    isUserRequestee(friendRequest: FriendRequest) {
+        return this.user.username === friendRequest.requestee.username;
+    }
+
+    getCreatedDateString(createdAt: Date) {
         return createdAt.toLocaleDateString();
     }
 
-    getDeviceCreatedTimeString(createdAt: Date) {
+    getCreatedTimeString(createdAt: Date) {
         return createdAt.toLocaleTimeString().replace(/(.*)\D\d+/, "$1");
     }
 
@@ -168,8 +203,21 @@ export class AccountPage implements OnInit, OnDestroy {
         setTimeout(() => {
             if (this.showUsernameInput && !this.isUpdatingUsername) {
                 this.updateUsername();
+            } else if (this.isPresentingFriendRequestModal) {
+                this.sendFriendRequest();
             }
         }, 100);
+    }
+
+    async sendFriendRequest() {
+        this.isSendingFriendRequest = true;
+        const created = await this.friendRequestsService.create(this.friendRequestUsername);
+
+        if (created) {
+            this.friendRequestModal.dismiss();
+        }
+
+        this.isSendingFriendRequest = false;
     }
 
     toggleUsernameInput() {
@@ -178,13 +226,47 @@ export class AccountPage implements OnInit, OnDestroy {
         this.inputElementFocus();
     }
 
+    async updateFriendRequestAcceptance(friendRequest: FriendRequest) {
+        const { id, status } = friendRequest;
+
+        let message = `
+        This friend request was previously rejected.
+        Please accept the request to add the user to tuples and vice versa.
+        You can accept this request at any time.`;
+        const buttons = [
+            {
+                text: "Accept",
+                cssClass: "alert-button-primary",
+                handler: async () => {
+                    await this.friendRequestsService.acceptance(id, true);
+                }
+            },
+            {
+                text: "Cancel",
+                role: "cancel",
+                cssClass: "alert-button-cancel"
+            }
+        ];
+
+        if (status === "Pending") {
+            message = `
+            Please accept or reject the friend request.
+            Accepting the request will allow you to add the user to tuples and vice versa.
+            You can accept a previously rejected request at any time.`;
+            buttons.splice(1, 0, {
+                text: "Reject",
+                cssClass: "alert-button-danger",
+                handler: async () => {
+                    await this.friendRequestsService.acceptance(id, false);
+                }
+            });
+        }
+
+        (await this.alertController.create({ message, buttons })).present();
+    }
+
     async updateMaxDevices() {
-        if (
-            this.maxDevices !== this.user.maxDevices &&
-            this.canUpdateMaxDevices &&
-            !this.isUpdatingMaxDevices
-        ) {
-            this.isUpdatingMaxDevices = true;
+        if (this.maxDevices !== this.user.maxDevices && this.canUpdateMaxDevices) {
             const updated = await this.usersService.update({ maxDevices: this.maxDevices });
 
             if (updated) {
@@ -195,9 +277,19 @@ export class AccountPage implements OnInit, OnDestroy {
                 if (!updated) {
                     this.maxDevices = this.user.maxDevices;
                 }
-
-                this.isUpdatingMaxDevices = false;
             }, 500);
+        }
+    }
+
+    async updateMaxFriends() {
+        if (this.maxFriends !== this.user.maxFriends && this.canUpdateMaxFriends) {
+            const updated = await this.usersService.update({ maxFriends: this.maxFriends });
+
+            if (updated) {
+                this.user.maxFriends = this.maxFriends;
+            } else {
+                setTimeout(() => (this.maxFriends = this.user.maxFriends), 500);
+            }
         }
     }
 
@@ -221,22 +313,20 @@ export class AccountPage implements OnInit, OnDestroy {
         (
             await this.alertController.create({
                 message:
-                    "Please verify or delete device. Verifying the device will give it full access to your account and tuples.",
+                    "Please verify or delete the device. Verifying the device will give it full access to your account and tuples.",
                 buttons: [
                     {
                         text: "Verify",
                         cssClass: "alert-button-primary",
                         handler: async () => {
-                            this.isVerifyingDevice = true;
                             await this.devicesService.verify(id);
-                            this.isVerifyingDevice = false;
                         }
                     },
                     {
                         text: "Delete",
                         cssClass: "alert-button-danger",
                         handler: async () => {
-                            await this.confirmedDeleteDevice(id);
+                            await this.devicesService.delete(id);
                         }
                     },
                     {
@@ -263,16 +353,14 @@ export class AccountPage implements OnInit, OnDestroy {
 
         if (!this.user) {
             await this.usersService.setUser();
-        }
+        } else {
+            if (this.maxDevices === undefined) {
+                this.maxDevices = this.user.maxDevices;
+            }
 
-        if (this.user && this.maxDevices === undefined) {
-            this.maxDevices = this.user.maxDevices;
+            if (this.maxFriends === undefined) {
+                this.maxFriends = this.user.maxFriends;
+            }
         }
-    }
-
-    private async confirmedDeleteDevice(id: string) {
-        this.isDeletingDevice = true;
-        await this.devicesService.delete(id);
-        this.isDeletingDevice = false;
     }
 }
