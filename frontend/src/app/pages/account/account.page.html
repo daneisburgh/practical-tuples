@@ -122,8 +122,6 @@
                                 </ion-col>
                                 <ion-col size="4">
                                     {{ getCreatedDateString(device.createdAt) }}
-                                    <br *ngIf="isSmallScreen" />
-                                    {{ getCreatedTimeString(device.createdAt) }}
                                 </ion-col>
                                 <ion-col size="1" class="ion-text-end">
                                     <ion-button
@@ -228,8 +226,6 @@
                                     <ion-col size="6">{{ friend.username }}</ion-col>
                                     <ion-col size="4">
                                         {{ getCreatedDateString(friend.updatedAt) }}
-                                        <br *ngIf="isSmallScreen" />
-                                        {{ getCreatedTimeString(friend.updatedAt) }}
                                     </ion-col>
                                     <ion-col size="1" class="ion-text-end">
                                         <ion-button
@@ -285,8 +281,6 @@
                                     </ion-col>
                                     <ion-col size="4">
                                         {{ getCreatedDateString(friendRequest.createdAt) }}
-                                        <br *ngIf="isSmallScreen" />
-                                        {{ getCreatedTimeString(friendRequest.createdAt) }}
                                     </ion-col>
                                     <ion-col size="1" class="ion-text-end">
                                         <ion-button
